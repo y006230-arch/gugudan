@@ -3,201 +3,325 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>연산 게임</title>
+  <title>포켓몬 연산 게임</title>
   <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f0f4ff;--surface:#fff;--border:#d8e0f0;--text:#1a2340;--text-muted:#6b7a99;--primary:#4f6ef7;--primary-hover:#3d5ce0;--shadow:0 4px 24px rgba(79,110,247,.12);--radius:16px;--perfect:#22c55e;--perfect-bg:#dcfce7;--learning:#eab308;--learning-bg:#fef9c3;--trying:#f97316;--trying-bg:#ffedd5;--retry:#ef4444;--retry-bg:#fee2e2;--untouched:#e2e8f0;--untouched-bg:#f8fafc;--star:#fbbf24;--star-empty:#e2e8f0}
-body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:radial-gradient(ellipse at 10% 0%,rgba(79,110,247,.1) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(34,197,94,.08) 0%,transparent 50%),var(--bg);color:var(--text);line-height:1.5}
-.app{max-width:640px;margin:0 auto;padding:1.5rem 1rem 3rem}
-.header{text-align:center;margin-bottom:1.5rem}
-.logo{font-size:2.5rem;margin-bottom:.25rem}
-.header h1{font-size:1.75rem;font-weight:800}
-.subtitle{color:var(--text-muted);font-size:.95rem;margin-top:.25rem}
-.user-bar{background:var(--surface);border-radius:var(--radius);padding:.85rem 1rem;box-shadow:var(--shadow);margin-bottom:1rem;border:2px solid var(--border)}
-.user-bar-title{font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:.55rem}
-.user-pills{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.65rem}
-.user-pill{padding:.5rem .85rem;border:2px solid var(--border);border-radius:20px;background:var(--bg);font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s}
-.user-pill:hover{border-color:var(--primary);background:#f5f7ff}
-.user-pill.active{border-color:var(--primary);background:var(--primary);color:#fff}
-.user-add{display:flex;gap:.45rem}
-.user-add input{flex:1;padding:.55rem .75rem;border:2px solid var(--border);border-radius:10px;font-size:.9rem;font-weight:600;outline:none}
-.user-add input:focus{border-color:var(--primary)}
-.user-add-btn{padding:.55rem .9rem;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap}
-.user-add-btn:hover{background:var(--primary-hover)}
-.record-user{font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:.35rem}
-.mode-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
-.mode-tab{flex:1;padding:.7rem .5rem;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-size:.9rem;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
-.mode-tab:hover{border-color:var(--primary);background:#f5f7ff}
-.mode-tab.active{border-color:var(--primary);background:var(--primary);color:#fff}
-.tabs{display:flex;gap:.35rem;background:var(--surface);padding:.35rem;border-radius:12px;box-shadow:var(--shadow);margin-bottom:1.25rem}
-.tab{flex:1;padding:.6rem .4rem;border:none;border-radius:9px;background:transparent;font-size:.9rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:background .2s,color .2s}
-.tab:hover{background:var(--bg)}
-.tab.active{background:var(--primary);color:#fff}
+:root{
+  --pika-yellow:#ffd830;--pika-yellow-light:#fff8b0;--pika-yellow-pale:#fffce8;
+  --pika-red:#e83828;--pika-red-soft:#f87868;--pika-brown:#5c4820;--pika-black:#1a1a1a;
+  --pika-white:#fffef8;--pika-cream:#fff8e0;--muted:#7a6840;--border:#f0d050;
+  --border-strong:#e8c028;--hover:rgba(255,216,48,.32);--shadow:0 4px 0 var(--pika-brown);
+  --focus:0 0 0 3px rgba(255,216,48,.5);--ring:rgba(232,56,40,.35);
+  --perfect:#1fa855;--perfect-bg:#b8e8c8;--learning:#f0c000;--learning-bg:#fff680;
+  --trying:#f07018;--trying-bg:#ffd0a0;--retry:#e02828;--retry-bg:#ffb8b0;
+  --learning-text:#4a3800;
+  --untouched:#e0c868;--untouched-bg:#fffce0;--star:#ffd830;--star-empty:#f0e0a0;
+  --ball-top:#e83828;--ball-bottom:#fffef8;--ball-band:#4a3820;--ball-ring:#fffef8;
+  --sky:#a8d8f8;--grass:#68b850;
+  --font:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif
+}
+.pokeball{display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid var(--ball-band);background:linear-gradient(180deg,var(--ball-top) 0%,var(--ball-top) 48%,var(--ball-band) 48%,var(--ball-band) 52%,var(--ball-bottom) 52%,var(--ball-bottom) 100%);position:relative;box-shadow:0 2px 0 rgba(0,0,0,.1);flex-shrink:0}
+.pokeball::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38%;height:38%;border-radius:50%;background:var(--ball-ring);border:2px solid var(--ball-band)}
+.pokeball-sm{width:18px;height:18px;border-width:1.5px}
+.pokeball-sm::after{border-width:1.5px}
+.pokeball-md{width:28px;height:28px}
+.pokeball-lg{width:44px;height:44px}
+.pokeball-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.pokeball-bg .pokeball{position:absolute;opacity:.17}
+.pokeball-bg .pb1{top:6%;left:4%;width:52px;height:52px;transform:rotate(-18deg)}
+.pokeball-bg .pb2{top:22%;right:5%;width:36px;height:36px;transform:rotate(12deg)}
+.pokeball-bg .pb3{bottom:18%;left:7%;width:40px;height:40px;transform:rotate(8deg)}
+.pokeball-bg .pb4{bottom:8%;right:8%;width:56px;height:56px;transform:rotate(-10deg)}
+body.mode-subtract{--ball-top:#48b868}
+body.mode-divide{--ball-top:#f07828}
+body.mode-multiply{--ball-top:#e83828}
+body.mode-add{--ball-top:#68c0f0}
+body{
+  min-height:100vh;font-family:var(--font);font-size:16px;line-height:1.5;color:var(--pika-brown);
+  background:linear-gradient(180deg,var(--sky) 0%,#78c0f0 28%,var(--grass) 28%,#58a848 100%);
+  background-attachment:fixed;transition:background .35s ease,color .35s ease
+}
+body.mode-subtract{
+  --pika-yellow:#78c8b0;--pika-yellow-light:#c8e8dc;--pika-yellow-pale:#e4f4ec;
+  --pika-red:#48b868;--pika-red-soft:#88d8a8;--pika-brown:#2d5048;--muted:#4a7868;
+  --border:#98d8c0;--border-strong:#68c0a0;--hover:rgba(120,200,176,.3);
+  --focus:0 0 0 3px rgba(120,200,176,.48);--star:#58c888;--star-empty:#b8e8d0;
+  background:linear-gradient(180deg,#c8e8dc 0%,#78c8b0 28%,var(--grass) 28%,#48a868 100%)
+}
+body.mode-divide{
+  --pika-yellow:#f07828;--pika-yellow-light:#ffe8c0;--pika-yellow-pale:#fff4e0;
+  --pika-red:#ff5020;--pika-red-soft:#ffa060;--pika-brown:#6b4020;--muted:#8a5830;
+  --border:#f0c080;--border-strong:#e8a050;--hover:rgba(240,120,40,.28);
+  --focus:0 0 0 3px rgba(255,160,64,.48);--star:#ffd040;--star-empty:#f0d8a8;
+  background:linear-gradient(180deg,#ffe8c0 0%,#f0a060 28%,var(--grass) 28%,#68b850 100%)
+}
+body.mode-multiply{
+  --pika-yellow:#ffd830;--pika-yellow-light:#fff8b0;--pika-yellow-pale:#fffce8;
+  --pika-red:#e83828;--pika-red-soft:#f87868;--pika-brown:#5c4820;--muted:#7a6840;
+  --border:#f0d050;--border-strong:#e8c028;--hover:rgba(255,216,48,.32);
+  --focus:0 0 0 3px rgba(255,216,48,.5);--star:#ffd830;--star-empty:#f0e0a0;
+  background:linear-gradient(180deg,#fff8b0 0%,#ffd830 28%,var(--grass) 28%,#68b850 100%)
+}
+body.mode-multiply .user-pill.active,body.mode-multiply .user-add-btn,body.mode-multiply .tab.active{background:var(--pika-yellow);color:var(--pika-brown);border-color:var(--pika-brown)}
+body.mode-multiply .user-pill.active{box-shadow:0 3px 0 var(--pika-brown)}
+body.mode-add{
+  --pika-yellow:#78c8f8;--pika-yellow-light:#c8e8ff;--pika-yellow-pale:#e8f4ff;
+  --pika-red:#68c0f0;--pika-red-soft:#a8e0ff;--pika-brown:#3d5870;--muted:#507888;
+  --border:#98d0f0;--border-strong:#78c0e8;--hover:rgba(120,200,248,.3);
+  --focus:0 0 0 3px rgba(120,200,248,.48);--star:#68c8f8;--star-empty:#c0e8ff;
+  background:linear-gradient(180deg,#c8e8ff 0%,#78c8f8 28%,var(--grass) 28%,#58a848 100%)
+}
+body.mode-subtract .header::before{background:radial-gradient(circle at 20% 32%,#88d8a8 0%,transparent 14%),radial-gradient(circle at 80% 32%,#88d8a8 0%,transparent 14%),radial-gradient(ellipse 50% 28% at 50% 90%,rgba(72,184,104,.12),transparent 70%)}
+body.mode-divide .header::before{background:radial-gradient(circle at 20% 32%,#ffa060 0%,transparent 14%),radial-gradient(circle at 80% 32%,#ffa060 0%,transparent 14%),radial-gradient(ellipse 50% 28% at 50% 90%,rgba(255,80,32,.1),transparent 70%)}
+body.mode-multiply .header::before{background:radial-gradient(circle at 18% 35%,#f87868 0%,transparent 12%),radial-gradient(circle at 82% 35%,#f87868 0%,transparent 12%),radial-gradient(ellipse 50% 30% at 50% 88%,rgba(92,72,32,.08),transparent 70%)}
+body.mode-add .header::before{background:radial-gradient(circle at 18% 35%,#a8e0ff 0%,transparent 14%),radial-gradient(circle at 82% 35%,#a8e0ff 0%,transparent 14%),radial-gradient(ellipse 55% 35% at 50% 92%,rgba(104,192,240,.12),transparent 70%)}
+body.mode-subtract .question{text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(120,200,176,.5)}
+body.mode-divide .question{text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(255,160,64,.5)}
+body.mode-multiply .question{text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(255,216,48,.52)}
+body.mode-add .question{text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(120,200,248,.52)}
+.mon-sprite{display:inline-block;flex-shrink:0;vertical-align:middle;overflow:hidden;background-image:url('assets/pokemon-sprites.png');background-repeat:no-repeat;background-size:100% 400%;border:1.5px solid var(--pika-brown);border-radius:8px;background-color:#f0f0f0;box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.mon-sprite.sm{width:26px;height:26px;border-radius:7px}
+.mon-sprite.lg{width:68px;height:68px;border-radius:14px;border-width:2px;margin-bottom:8px;box-shadow:0 3px 0 var(--pika-brown)}
+.mon-sprite.char{background-position:50% 0%}
+.mon-sprite.pika{background-position:50% 33.333%}
+.mon-sprite.squirt{background-position:50% 66.666%}
+.mon-sprite.bulb{background-position:50% 100%}
+.face-icon{display:inline-block;flex-shrink:0;width:28px;height:28px;overflow:hidden;border:1.5px solid var(--pika-brown);border-radius:8px;background-image:url('assets/pokemon-faces.png');background-repeat:no-repeat;background-size:200% 200%;background-color:#f0f0f0;box-shadow:0 1px 0 rgba(0,0,0,.12);vertical-align:middle}
+.face-icon.pika{background-position:0% 0%}
+.face-icon.bulb{background-position:100% 0%}
+.face-icon.squirt{background-position:0% 100%}
+.face-icon.char{background-position:100% 100%}
+.reward-mode .mon-sprite.sm{background-size:175% 700%}
+.reward-mode .mon-sprite.char{background-position:50% 5%}
+.reward-mode .mon-sprite.pika{background-position:50% 30%}
+.reward-mode .mon-sprite.squirt{background-position:50% 60%}
+.reward-mode .mon-sprite.bulb{background-position:50% 88%}
+.section-title{display:flex;align-items:center;gap:6px}
+.section-title::before{content:"";display:inline-block;width:24px;height:24px;flex-shrink:0;border:1.5px solid var(--pika-brown);border-radius:7px;background-color:#f0f0f0;background-image:url('assets/pokemon-sprites.png');background-repeat:no-repeat;background-size:100% 400%;box-shadow:0 1px 0 rgba(0,0,0,.1)}
+body.mode-multiply .section-title::before{background-position:50% 33.333%}
+body.mode-add .section-title::before{background-position:50% 66.666%}
+body.mode-subtract .section-title::before{background-position:50% 100%}
+body.mode-divide .section-title::before{background-position:50% 0%}
+.app{max-width:640px;margin:0 auto;padding:24px 16px 48px;position:relative;z-index:1}
+.card{background:var(--pika-white);border:3px solid var(--pika-brown);border-radius:20px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.header{text-align:center;margin-bottom:20px;padding:28px 16px 24px;border-radius:24px;border:3px solid var(--pika-brown);position:relative;overflow:hidden;background:var(--pika-yellow);box-shadow:var(--shadow)}
+.header::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 35%,var(--pika-red-soft) 0%,transparent 12%),radial-gradient(circle at 82% 35%,var(--pika-red-soft) 0%,transparent 12%),radial-gradient(ellipse 50% 30% at 50% 88%,rgba(61,41,20,.08),transparent 70%);pointer-events:none}
+.header-ball{position:absolute;top:12px;width:30px;height:30px;opacity:.88;z-index:1}
+.header-ball.left{left:12px;transform:rotate(-14deg)}
+.header-ball.right{right:12px;transform:rotate(14deg)}
+.header>*{position:relative;z-index:2}
+.mascot-wrap{display:flex;justify-content:center;margin-bottom:8px}
+.header-badge{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;min-width:52px;margin-bottom:10px;padding:0;border:2px solid var(--ball-band);border-radius:50%;background:linear-gradient(180deg,var(--ball-top) 0%,var(--ball-top) 48%,var(--ball-band) 48%,var(--ball-band) 52%,var(--ball-bottom) 52%,var(--ball-bottom) 100%);font-size:1.1rem;font-weight:800;color:var(--ball-band);box-shadow:0 3px 0 var(--pika-brown);position:relative}
+.header-badge::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:var(--ball-ring);border:2px solid var(--ball-band);z-index:0}
+.header-badge>*{position:relative;z-index:1}
+.hero-title{font-size:2rem;font-weight:800;line-height:1.15;color:var(--pika-brown);text-shadow:2px 2px 0 var(--pika-white)}
+.subtitle{font-size:1rem;font-weight:600;line-height:1.4;color:var(--pika-brown);margin-top:8px;opacity:.85}
+.user-bar{margin-bottom:16px}
+.user-bar-title{font-size:15px;font-weight:800;color:var(--pika-brown);margin-bottom:12px}
+.user-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.user-pill{padding:8px 16px;border:2px solid var(--pika-brown);border-radius:9999px;background:var(--pika-yellow-pale);font-size:14px;font-weight:700;color:var(--pika-brown);cursor:pointer;transition:transform .1s}
+.user-pill:hover{background:var(--hover)}
+.user-pill.active{background:var(--pika-red);color:var(--pika-white);border-color:var(--pika-brown);box-shadow:0 3px 0 var(--pika-brown)}
+.user-add{display:flex;gap:8px}
+.user-add input{flex:1;padding:10px 12px;border:2px solid var(--pika-brown);border-radius:12px;background:var(--pika-white);font-size:16px;color:var(--pika-brown);outline:none;min-height:44px}
+.user-add input::placeholder{color:var(--muted)}
+.user-add input:focus{box-shadow:var(--focus)}
+.user-add-btn{padding:10px 16px;border:2px solid var(--pika-brown);border-radius:12px;background:var(--pika-red);color:var(--pika-white);font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;min-height:44px;box-shadow:0 3px 0 var(--pika-brown)}
+.user-add-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pika-brown)}
+.record-user{font-size:14px;font-weight:800;color:var(--pika-red);margin-bottom:8px}
+.mode-tabs{display:flex;gap:8px;margin-bottom:8px;padding:6px;background:var(--pika-white);border:3px solid var(--pika-brown);border-radius:16px;box-shadow:var(--shadow)}
+.mode-tab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:10px 4px;border:2px solid transparent;border-radius:12px;background:transparent;font-size:12px;font-weight:700;color:var(--pika-brown);cursor:pointer;min-height:44px}
+.mode-tab:hover{background:var(--pika-yellow-pale)}
+.mode-tab.active{background:var(--pika-yellow);color:var(--pika-brown);border-color:var(--pika-brown);box-shadow:0 3px 0 var(--pika-brown)}
+.tabs{display:flex;gap:8px;margin-bottom:20px;padding:6px;border:3px solid var(--pika-brown);border-radius:16px;background:var(--pika-white);box-shadow:var(--shadow)}
+.tab{flex:1;padding:8px 12px;border:none;border-radius:12px;background:transparent;font-size:14px;font-weight:700;color:var(--pika-brown);cursor:pointer;min-height:40px}
+.tab:hover{background:var(--pika-yellow-pale)}
+.tab.active{background:var(--pika-red);color:var(--pika-white);font-weight:800}
 .panel{display:none}.panel.active{display:block}
-.section-title{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
-.dan-select{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
-.dan-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
-.dan-btn{padding:.85rem .5rem;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-size:1rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s}
-.dan-btn:hover{border-color:var(--primary);background:#f5f7ff}
-.dan-btn.selected{border-color:var(--primary);background:var(--primary);color:#fff}
-.hint{margin-top:.75rem;font-size:.85rem;color:var(--text-muted);text-align:center}
-.empty-msg{background:var(--surface);border-radius:var(--radius);padding:2.5rem 1.5rem;box-shadow:var(--shadow);text-align:center;color:var(--text-muted);font-weight:600}
-.problem-picker{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
-.picker-section{margin-bottom:1rem}.picker-section:last-child{margin-bottom:0}
-.picker-dan-title{font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:.6rem}
-.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-.problem-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem .4rem;border-radius:10px;font-size:.85rem;font-weight:700;min-height:58px;border:2px solid transparent;cursor:pointer;transition:transform .1s,box-shadow .2s}
-.problem-btn:hover{transform:scale(1.03);box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.problem-btn .fact{font-size:.95rem}.problem-btn .status-label{font-size:.68rem;margin-top:.1rem;opacity:.9}
-.problem-btn .date-label{font-size:.62rem;margin-top:.1rem;opacity:.75}
-.problem-btn.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
-.problem-btn.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
-.problem-btn.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
-.problem-btn.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
-.problem-btn.untouched{background:var(--untouched-bg);color:var(--text-muted);border-color:var(--untouched)}
-.game-area{background:var(--surface);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1rem}
-.question-card{text-align:center}
-.question{font-size:3.25rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:.05em;line-height:1.2}
-.answer-form{display:flex;gap:.6rem;max-width:320px;margin:0 auto}
-.answer-form input{flex:1;padding:.85rem 1rem;border:2px solid var(--border);border-radius:12px;font-size:1.25rem;text-align:center;outline:none;transition:border-color .2s}
-.answer-form input:focus{border-color:var(--primary)}
-.submit-btn{padding:.85rem 1.25rem;border:none;border-radius:12px;background:var(--primary);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s}
-.submit-btn:hover{background:var(--primary-hover)}
-.feedback{text-align:center;margin-top:1.25rem;font-size:1.1rem;font-weight:700;min-height:1.6rem}
+.section-title{font-size:1.2rem;font-weight:800;line-height:1.25;color:var(--pika-brown);margin-bottom:12px}
+.dan-select,.problem-picker,.game-area,.reward-panel,.stats-panel,.bingo-panel,.reward-edit-box{background:var(--pika-white);border:3px solid var(--pika-brown);border-radius:20px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.game-area{background:linear-gradient(180deg,var(--pika-yellow) 0%,var(--pika-yellow-light) 100%);border-radius:24px;padding:28px 16px}
+.dan-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dan-btn{padding:12px 8px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-yellow-pale);font-size:14px;font-weight:800;color:var(--pika-brown);cursor:pointer;min-height:48px;box-shadow:0 3px 0 var(--pika-brown)}
+.dan-btn:hover{background:var(--pika-yellow)}
+.dan-btn.selected{background:var(--pika-red);color:var(--pika-white);box-shadow:0 3px 0 var(--pika-brown)}
+.hint{margin-top:12px;font-size:14px;color:var(--muted);text-align:center;line-height:1.5;font-weight:600}
+.picker-section{margin-bottom:16px}.picker-section:last-child{margin-bottom:0}
+.picker-dan-title{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.problem-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-radius:14px;font-size:14px;min-height:64px;border:2px solid var(--pika-brown);cursor:pointer;background:var(--pika-yellow-pale);box-shadow:0 2px 0 var(--pika-brown)}
+.problem-btn:hover{background:var(--pika-yellow)}
+.problem-btn .fact{font-size:14px;font-weight:800}.problem-btn .status-label{font-size:12px;margin-top:4px;font-weight:700}
+.problem-btn .date-label{font-size:11px;margin-top:2px;color:var(--muted)}
+.problem-btn.perfect{background:var(--perfect-bg);color:var(--perfect);border-color:var(--perfect)}
+.problem-btn.learning{background:var(--learning-bg);color:var(--learning-text);border-color:var(--learning)}
+.problem-btn.trying{background:var(--trying-bg);color:var(--trying);border-color:var(--trying)}
+.problem-btn.retry{background:var(--retry-bg);color:var(--retry);border-color:var(--retry)}
+.problem-btn.untouched{background:var(--untouched-bg);color:var(--muted)}
+.question-card{text-align:center;padding:8px 0}
+.question{font-size:3rem;font-weight:800;line-height:1.1;color:var(--pika-brown);margin-bottom:24px;text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(255,216,48,.52)}
+.answer-form{display:flex;gap:8px;max-width:360px;margin:0 auto}
+.answer-form input{flex:1;padding:10px 12px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);font-size:22px;font-weight:700;text-align:center;color:var(--pika-brown);outline:none;min-height:52px}
+.answer-form input:focus{box-shadow:var(--focus)}
+.submit-btn{padding:10px 20px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-red);color:var(--pika-white);font-size:16px;font-weight:800;cursor:pointer;min-height:52px;box-shadow:0 4px 0 var(--pika-brown)}
+.submit-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--pika-brown)}
+.feedback{text-align:center;margin-top:16px;font-size:17px;font-weight:800;min-height:24px}
 .feedback.correct{color:var(--perfect)}.feedback.wrong{color:var(--retry)}
-.game-actions{display:flex;justify-content:center;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
-.secondary-btn{padding:.65rem 1.25rem;border:2px solid var(--border);border-radius:10px;background:var(--surface);font-size:.95rem;font-weight:600;color:var(--text);cursor:pointer;transition:border-color .2s}
-.secondary-btn:hover{border-color:var(--primary)}
+.game-actions{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+.secondary-btn,.start-btn{padding:10px 16px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);color:var(--pika-brown);font-size:14px;font-weight:800;cursor:pointer;min-height:44px;box-shadow:0 3px 0 var(--pika-brown)}
+.secondary-btn:hover,.start-btn:hover{background:var(--pika-yellow-pale)}
+.secondary-btn:active,.start-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pika-brown)}
+.start-btn{background:var(--pika-red);color:var(--pika-white)}
+.hint-btn{background:var(--pika-yellow);border-color:var(--pika-brown)}
 .hidden{display:none!important}
-.reward-panel{background:linear-gradient(135deg,#fff9e6,#fff);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem;border:2px solid #fde68a}
-.reward-date{font-size:.95rem;font-weight:700;color:var(--text-muted);margin-bottom:.5rem}
-.reward-date span{color:var(--primary);font-size:1.1rem}
-.reward-score{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.reward-points{font-size:1.5rem;font-weight:800;color:var(--text)}
-.reward-points small{font-size:.85rem;font-weight:600;color:var(--text-muted)}
-.stars{display:flex;gap:.35rem}
-.star{font-size:1.6rem;line-height:1;color:var(--star-empty);transition:color .2s}
-.star.filled{color:var(--star);text-shadow:0 1px 3px rgba(251,191,36,.5)}
-.reward-current{background:var(--surface);border-radius:12px;padding:.85rem 1rem;text-align:center;border:2px solid var(--border)}
-.reward-current .reward-name{font-size:1.15rem;font-weight:800;color:var(--primary)}
-.reward-current .reward-desc{font-size:.8rem;color:var(--text-muted);margin-top:.2rem}
-.reward-tiers{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.75rem}
-.tier-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:600;padding:.35rem .5rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);opacity:.6}
-.tier-item.active{opacity:1;border-color:var(--star);background:#fffbeb;box-shadow:0 2px 6px rgba(251,191,36,.2)}
-.tier-item .tier-stars{color:var(--star);font-size:.7rem;white-space:nowrap}
-.point-legend{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;font-size:.75rem;font-weight:600}
-.point-item{padding:.25rem .5rem;border-radius:8px}
-.point-item.perfect{background:var(--perfect-bg);color:#15803d}
-.point-item.learning{background:var(--learning-bg);color:#a16207}
-.point-item.trying{background:var(--trying-bg);color:#c2410c}
-.point-item.retry{background:var(--retry-bg);color:#b91c1c}
-.record-header{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
-.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
-.legend-item{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;padding:.3rem .6rem;border-radius:20px}
-.legend-item::before{content:"";width:12px;height:12px;border-radius:50%}
-.legend-item.perfect{background:var(--perfect-bg);color:#15803d}.legend-item.perfect::before{background:var(--perfect)}
-.legend-item.learning{background:var(--learning-bg);color:#a16207}.legend-item.learning::before{background:var(--learning)}
-.legend-item.trying{background:var(--trying-bg);color:#c2410c}.legend-item.trying::before{background:var(--trying)}
-.legend-item.retry{background:var(--retry-bg);color:#b91c1c}.legend-item.retry::before{background:var(--retry)}
-.legend-item.untouched{background:var(--untouched-bg);color:var(--text-muted)}.legend-item.untouched::before{background:var(--untouched)}
-.record-board{display:flex;flex-direction:column;gap:1rem}
-.dan-section{background:var(--surface);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
-.dan-section-title{font-size:1rem;font-weight:700;margin-bottom:.75rem;color:var(--primary)}
-.record-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-.record-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.65rem .4rem;border-radius:10px;font-size:.85rem;font-weight:700;min-height:72px}
-.record-cell .fact{font-size:.95rem}.record-cell .status-label{font-size:.7rem;margin-top:.15rem;opacity:.9}
-.record-cell .date-label{font-size:.65rem;margin-top:.1rem;opacity:.75;font-weight:600}
-.record-cell.perfect{background:var(--perfect-bg);color:#15803d;border:2px solid var(--perfect)}
-.record-cell.learning{background:var(--learning-bg);color:#a16207;border:2px solid var(--learning)}
-.record-cell.trying{background:var(--trying-bg);color:#c2410c;border:2px solid var(--trying)}
-.record-cell.retry{background:var(--retry-bg);color:#b91c1c;border:2px solid var(--retry)}
-.record-cell.untouched{background:var(--untouched-bg);color:var(--text-muted);border:2px solid var(--untouched)}
-.reward-edit-box{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow)}
-.reward-edit-list{display:flex;flex-direction:column;gap:.75rem;margin:1rem 0}
-.reward-edit-row{display:flex;align-items:center;gap:.6rem;background:var(--bg);border-radius:12px;padding:.75rem;border:2px solid var(--border)}
-.reward-edit-row .row-stars{color:var(--star);font-size:1rem;font-weight:800;min-width:72px;white-space:nowrap}
-.reward-edit-row .row-pts{font-size:.75rem;color:var(--text-muted);font-weight:600;min-width:36px}
-.reward-edit-row input{flex:1;padding:.6rem .75rem;border:2px solid var(--border);border-radius:10px;font-size:.95rem;font-weight:600;outline:none}
-.reward-edit-row input:focus{border-color:var(--primary)}
-.reward-edit-actions{display:flex;flex-direction:column;gap:.6rem}
-.save-msg{text-align:center;font-weight:700;color:var(--perfect);min-height:1.2rem}
-.stats-panel{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-top:1rem}
-.stats-total{font-size:1rem;font-weight:700;margin-bottom:.75rem}
-.stats-total strong{color:var(--primary);font-size:1.25rem}
-.stats-top{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;border-radius:20px;font-size:.85rem;font-weight:700;margin-bottom:1rem;border:2px solid var(--border)}
-.stats-top.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
-.stats-top.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
-.stats-top.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
-.stats-top.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
-.stats-top.empty{background:var(--untouched-bg);color:var(--text-muted)}
-.stats-rows{display:flex;flex-direction:column;gap:.55rem}
-.stat-row{display:grid;grid-template-columns:88px 1fr 52px;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600}
-.stat-row.top-row .stat-bar-wrap{box-shadow:0 0 0 2px rgba(79,110,247,.35);border-radius:8px}
-.stat-label{display:flex;align-items:center;gap:.35rem}
-.stat-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.stat-dot.perfect{background:var(--perfect)}.stat-dot.learning{background:var(--learning)}
-.stat-dot.trying{background:var(--trying)}.stat-dot.retry{background:var(--retry)}
-.stat-bar-wrap{background:var(--bg);border-radius:8px;height:22px;overflow:hidden;border:1px solid var(--border)}
-.stat-bar{height:100%;border-radius:8px;transition:width .4s}
-.stat-bar.perfect{background:var(--perfect)}.stat-bar.learning{background:var(--learning)}
-.stat-bar.trying{background:var(--trying)}.stat-bar.retry{background:var(--retry)}
-.stat-count{text-align:right;color:var(--text-muted);white-space:nowrap}
-.stat-count em{font-style:normal;color:var(--text);font-weight:800}
-.bingo-panel{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-top:1rem}
-.bingo-legend{display:flex;flex-wrap:wrap;gap:.35rem;margin:.75rem 0 1rem;font-size:.72rem;font-weight:600}
-.bingo-wrap{overflow-x:auto;padding-bottom:.25rem}
-.bingo-board{display:grid;grid-template-columns:34px repeat(9,minmax(30px,1fr));gap:3px;min-width:300px}
-.bingo-head,.bingo-row-label{display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:var(--text-muted)}
-.bingo-head.col-head{color:var(--primary)}
-.bingo-row-label{color:var(--primary);background:var(--bg);border-radius:6px}
-.bingo-row-label.active{background:var(--primary);color:#fff}
-.bingo-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:34px;border-radius:6px;font-size:.58rem;font-weight:800;line-height:1.15;border:2px solid var(--untouched);background:var(--untouched-bg);color:var(--text-muted);transition:transform .15s,box-shadow .15s}
-.bingo-cell .bingo-ans{font-size:.5rem;opacity:.85;font-weight:600;margin-top:1px}
-.bingo-cell.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
-.bingo-cell.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
-.bingo-cell.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
-.bingo-cell.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
-.bingo-cell.today{box-shadow:0 0 0 2px var(--primary);transform:scale(1.04)}
-.hint-btn{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;color:#c2410c}
-.hint-btn:hover{border-color:#f97316;background:#ffedd5}
-.hint-overlay{position:fixed;inset:0;background:rgba(26,35,64,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
-.hint-modal{background:linear-gradient(180deg,#fffbeb,#fff);border-radius:20px;max-width:420px;width:100%;max-height:92vh;overflow-y:auto;padding:1.25rem;box-shadow:0 16px 48px rgba(0,0,0,.2);border:3px solid #fde68a;position:relative}
-.hint-close{position:absolute;top:.75rem;right:.75rem;width:36px;height:36px;border:none;border-radius:50%;background:var(--surface);font-size:1.1rem;font-weight:700;cursor:pointer;border:2px solid var(--border)}
-.hint-close:hover{border-color:var(--primary)}
-.hint-title{text-align:center;font-size:1.2rem;font-weight:800;margin-bottom:.25rem;color:var(--text)}
-.hint-sub{text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem}
-.hint-themes{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:1rem}
-.hint-theme{padding:.4rem .65rem;border:2px solid var(--border);border-radius:20px;background:var(--surface);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
-.hint-theme.active{border-color:var(--primary);background:var(--primary);color:#fff}
-.hint-step{background:var(--surface);border-radius:14px;padding:1rem;margin-bottom:.75rem;border:2px solid var(--border);text-align:center}
-.hint-step-title{font-size:.95rem;font-weight:800;color:var(--primary);margin-bottom:.6rem}
-.hint-step-desc{font-size:.85rem;font-weight:600;color:var(--text-muted);margin-bottom:.5rem}
-.hint-items{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;min-height:2rem}
+.reward-date{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.reward-date span{color:var(--pika-brown);font-size:16px;font-weight:800}
+.reward-mode{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:800;color:var(--pika-red);margin-bottom:12px;padding:6px 12px;border-radius:12px;border:2px solid var(--pika-brown);background:var(--pika-yellow-pale)}
+.reward-mode .mon-sprite.sm{vertical-align:middle}
+.reward-score{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:12px;border:2px solid var(--pika-brown);border-radius:16px;background:var(--pika-yellow-pale)}
+.reward-points{font-size:1.75rem;font-weight:800;color:var(--pika-brown)}
+.reward-points small{font-size:14px;font-weight:700;color:var(--muted)}
+.stars{display:flex;gap:4px}
+.star{font-size:24px;line-height:1;color:var(--star-empty)}
+.star.filled{color:var(--star);filter:drop-shadow(0 1px 0 var(--pika-brown))}
+.reward-current{border:2px solid var(--pika-brown);border-radius:16px;padding:16px;text-align:center;background:var(--pika-yellow-pale)}
+.reward-current .reward-name{font-size:1.25rem;font-weight:800;color:var(--pika-red)}
+.reward-current .reward-desc{font-size:14px;color:var(--muted);margin-top:4px;font-weight:600}
+.reward-tiers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.tier-item{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:8px;border-radius:12px;background:var(--pika-yellow-pale);border:2px solid var(--border);opacity:.75}
+.tier-item.active{opacity:1;border-color:var(--pika-brown);background:var(--pika-yellow)}
+.tier-item .tier-stars{color:var(--pika-red);white-space:nowrap}
+.point-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:12px;font-weight:700}
+.point-item{padding:4px 10px;border-radius:10px;border:2px solid var(--pika-brown)}
+.point-item.perfect{background:var(--perfect);color:#fff;border-color:#158040}
+.point-item.learning{background:var(--learning);color:var(--learning-text);border-color:#c8a000}
+.point-item.trying{background:var(--trying);color:#fff;border-color:#c05810}
+.point-item.retry{background:var(--retry);color:#fff;border-color:#b01818}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:10px;border:2px solid var(--pika-brown)}
+.legend-item::before{content:"";width:10px;height:10px;border-radius:50%}
+.legend-item.perfect{background:var(--perfect-bg);color:var(--perfect)}.legend-item.perfect::before{background:var(--perfect)}
+.legend-item.learning{background:var(--learning-bg);color:var(--learning)}.legend-item.learning::before{background:var(--learning)}
+.legend-item.trying{background:var(--trying-bg);color:var(--trying)}.legend-item.trying::before{background:var(--trying)}
+.legend-item.retry{background:var(--retry-bg);color:var(--retry)}.legend-item.retry::before{background:var(--retry)}
+.legend-item.untouched{background:var(--untouched-bg);color:var(--muted)}.legend-item.untouched::before{background:var(--untouched)}
+.reward-edit-list{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+.reward-edit-row{display:flex;align-items:center;gap:8px;border:2px solid var(--pika-brown);border-radius:14px;padding:12px;background:var(--pika-yellow-pale)}
+.reward-edit-row .row-stars{color:var(--pika-red);font-size:14px;font-weight:800;min-width:72px;white-space:nowrap}
+.reward-edit-row .row-pts{font-size:12px;color:var(--muted);font-weight:700;min-width:36px}
+.reward-edit-row input{flex:1;padding:8px 12px;border:2px solid var(--pika-brown);border-radius:12px;background:var(--pika-white);font-size:14px;outline:none;min-height:40px}
+.reward-edit-row input:focus{box-shadow:var(--focus)}
+.reward-edit-actions{display:flex;flex-direction:column;gap:8px}
+.save-msg{text-align:center;font-weight:600;color:var(--perfect);min-height:20px;font-size:14px}
+.stats-total{font-size:16px;font-weight:700;color:var(--muted);margin-bottom:12px}
+.stats-total strong{color:var(--pika-red);font-size:1.25rem;font-weight:800}
+.stats-top{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;font-size:14px;font-weight:700;margin-bottom:16px;border:2px solid var(--pika-brown);background:var(--pika-yellow-pale)}
+.stats-top.empty{color:var(--muted)}
+#recordPanel .stats-top,#recordPanel .stats-top.perfect,#recordPanel .stats-top.learning,#recordPanel .stats-top.trying,#recordPanel .stats-top.retry{color:var(--pika-brown);border-color:var(--border);background:var(--pika-white)}
+#recordPanel .stats-total strong{color:var(--pika-brown)}
+#recordPanel .record-user,#recordPanel .reward-mode,#recordPanel .reward-date span,#recordPanel .reward-current .reward-name,#recordPanel .tier-item .tier-stars{color:var(--pika-brown)}
+#recordPanel .reward-score,#recordPanel .reward-current{background:var(--pika-white)}
+#recordPanel .record-points-hint{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin-top:10px}
+.stats-rows{display:flex;flex-direction:column;gap:8px}
+.stat-row{display:grid;grid-template-columns:88px 1fr 52px;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:10px;border:2px solid var(--pika-brown);border-radius:12px;background:var(--pika-yellow-pale)}
+#recordPanel .stat-row{background:var(--pika-white)}
+.stat-row.top-row{border-color:var(--pika-brown);font-weight:800}
+#recordPanel .stat-row.top-row{box-shadow:none;background:var(--pika-yellow-pale)}
+.stat-label{display:flex;align-items:center;gap:6px;color:var(--pika-brown)}
+.stat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.stat-bar-wrap{background:var(--pika-white);border-radius:8px;height:20px;overflow:hidden;border:2px solid var(--pika-brown)}
+.stat-bar{height:100%;border-radius:6px;transition:width .4s}
+.stat-bar.perfect{background:var(--perfect)}
+.stat-bar.learning{background:var(--learning)}
+.stat-bar.trying{background:var(--trying)}
+.stat-bar.retry{background:var(--retry)}
+.stat-dot.perfect{background:var(--perfect)}
+.stat-dot.learning{background:var(--learning)}
+.stat-dot.trying{background:var(--trying)}
+.stat-dot.retry{background:var(--retry)}
+.stat-count{text-align:right;color:var(--muted);white-space:nowrap;font-size:12px}
+.stat-count em{font-style:normal;color:var(--pika-brown);font-weight:800}
+.bingo-panel{border-width:3px}
+.bingo-hint{margin-top:0;margin-bottom:10px;font-weight:700}
+.bingo-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;font-size:13px;font-weight:800}
+.bingo-legend .point-item{padding:6px 12px;font-size:13px}
+.bingo-legend-item{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;border:2px solid var(--pika-brown);font-size:13px;font-weight:800;background:var(--untouched-bg);color:var(--muted)}
+.bingo-wrap{overflow-x:auto;padding-bottom:4px}
+.bingo-board{display:grid;grid-template-columns:34px repeat(9,minmax(30px,1fr));gap:4px;min-width:300px}
+.bingo-head,.bingo-row-label{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted)}
+.bingo-head.col-head{color:var(--pika-red)}
+.bingo-row-label{background:var(--pika-yellow-pale);border-radius:8px;border:2px solid var(--pika-brown)}
+.bingo-row-label.active{background:var(--pika-red);color:var(--pika-white)}
+.bingo-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:36px;border-radius:8px;font-size:10px;font-weight:800;line-height:1.15;border:2px solid var(--pika-brown);background:var(--untouched-bg);color:var(--muted)}
+.bingo-cell .bingo-ans{font-size:9px;margin-top:2px;opacity:.9}
+.bingo-cell.perfect{background:var(--perfect);color:#fff;border-color:#158040}
+.bingo-cell.learning{background:var(--learning);color:var(--learning-text);border-color:#c8a000}
+.bingo-cell.trying{background:var(--trying);color:#fff;border-color:#c05810}
+.bingo-cell.retry{background:var(--retry);color:#fff;border-color:#b01818}
+.bingo-cell.today{outline:3px solid var(--pika-brown);outline-offset:1px;box-shadow:0 0 0 2px var(--pika-white)}
+.hint-overlay{position:fixed;inset:0;background:rgba(61,41,20,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.hint-modal{background:var(--pika-white);border-radius:24px;max-width:420px;width:100%;max-height:92vh;overflow-y:auto;padding:20px;border:3px solid var(--pika-brown);box-shadow:var(--shadow);position:relative}
+.hint-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border:2px solid var(--pika-brown);border-radius:9999px;background:var(--pika-yellow);font-size:14px;font-weight:800;cursor:pointer;color:var(--pika-brown)}
+.hint-close:hover{background:var(--pika-red);color:var(--pika-white)}
+.hint-title{text-align:center;font-size:1.25rem;font-weight:800;margin-bottom:4px;color:var(--pika-brown)}
+.hint-sub{text-align:center;font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:600}
+.hint-themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.hint-theme{padding:8px 14px;border:2px solid var(--pika-brown);border-radius:9999px;background:var(--pika-yellow-pale);font-size:12px;font-weight:700;cursor:pointer}
+.hint-theme.active{background:var(--pika-red);color:var(--pika-white);border-color:var(--pika-brown)}
+.hint-step{background:var(--pika-yellow-pale);border-radius:16px;padding:16px;margin-bottom:12px;border:2px solid var(--pika-brown);text-align:center}
+.hint-step-title{font-size:14px;font-weight:800;color:var(--pika-red);margin-bottom:8px}
+.hint-step-desc{font-size:14px;color:var(--muted);margin-bottom:8px;font-weight:600}
+.hint-items{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:2rem}
 .hint-item{font-size:1.45rem;line-height:1;animation:popIn .35s ease backwards}
 .hint-item.gone{opacity:.25;filter:grayscale(1);transform:scale(.85)}
-.hint-item:nth-child(1){animation-delay:.05s}.hint-item:nth-child(2){animation-delay:.1s}.hint-item:nth-child(3){animation-delay:.15s}.hint-item:nth-child(4){animation-delay:.2s}.hint-item:nth-child(5){animation-delay:.25s}
+.hint-item:nth-child(1){animation-delay:.05s}.hint-item:nth-child(2){animation-delay:.1s}.hint-item:nth-child(3){animation-delay:.15s}
+.hint-item:nth-child(4){animation-delay:.2s}.hint-item:nth-child(5){animation-delay:.25s}
 @keyframes popIn{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
-.hint-fingers{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
-.hint-hand{background:#ffe4c4;border-radius:16px 16px 20px 20px;padding:.65rem .85rem;border:2px solid #fdba74;min-width:100px}
-.hint-hand-label{font-size:.72rem;font-weight:700;color:#c2410c;margin-bottom:.4rem}
-.hint-finger-row{display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap}
-.hint-finger{width:14px;height:28px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#ffd6a8,#ffb86b);border:2px solid #f59e0b;animation:popIn .3s ease backwards}
-.hint-arrow{font-size:1.5rem;margin:.4rem 0;color:var(--primary);font-weight:800}
-.hint-result{background:linear-gradient(135deg,var(--perfect-bg),#fff);border:2px solid var(--perfect);border-radius:14px;padding:1rem;text-align:center;margin-top:.5rem}
-.hint-result strong{font-size:1.35rem;color:#15803d}
-.hint-back{width:100%;margin-top:.75rem}
-@media(max-width:400px){.stat-row{grid-template-columns:76px 1fr 44px;font-size:.78rem}.dan-buttons{grid-template-columns:repeat(2,1fr)}.question{font-size:2.75rem}.problem-grid,.record-grid{grid-template-columns:repeat(2,1fr)}.reward-tiers{grid-template-columns:1fr}.tab{font-size:.82rem;padding:.55rem .25rem}.reward-edit-row{flex-wrap:wrap}.reward-edit-row .row-stars{min-width:auto}.bingo-cell{font-size:.52rem;min-height:28px}}
+.hint-fingers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hint-hand{background:var(--pika-yellow);border-radius:16px;padding:12px;border:2px solid var(--pika-brown);min-width:100px}
+.hint-hand-label{font-size:12px;font-weight:800;color:var(--pika-red);margin-bottom:8px}
+.hint-finger-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.hint-finger{width:14px;height:28px;border-radius:6px;background:var(--pika-yellow-light);border:2px solid var(--pika-brown)}
+.hint-arrow{font-size:22px;margin:8px 0;color:var(--pika-red);font-weight:800}
+.hint-result{background:var(--perfect-bg);border:2px solid var(--perfect);border-radius:16px;padding:16px;text-align:center;margin-top:8px}
+.hint-result strong{font-size:18px;font-weight:800;color:var(--perfect)}
+.hint-back{width:100%;margin-top:12px}
+.footer-bar{margin-top:32px;padding:20px 16px;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:14px;font-weight:800;color:var(--pika-brown);border:3px solid var(--pika-brown);border-radius:20px;background:var(--pika-yellow);box-shadow:var(--shadow)}
+.footer-bar .pokeball-sm{opacity:.85}
+@media(max-width:480px){
+  .stat-row{grid-template-columns:76px 1fr 44px}.dan-buttons{grid-template-columns:repeat(2,1fr)}
+  .question{font-size:2.5rem}.problem-grid{grid-template-columns:repeat(2,1fr)}
+  .reward-tiers{grid-template-columns:1fr}.hero-title{font-size:1.75rem}
+  .bingo-cell{font-size:9px;min-height:28px}
+  .header-ball{width:24px;height:24px;top:10px}
+  .header-ball.left{left:8px}.header-ball.right{right:8px}
+  .pokeball-bg .pb1,.pokeball-bg .pb4{width:40px;height:40px}
+  .mode-tab{font-size:10px;padding:8px 2px;gap:2px}
+  .face-icon{width:24px;height:24px}
+  .mon-sprite.sm{width:22px;height:22px}
+  .mon-sprite.lg{width:56px;height:56px}
+  .section-title::before{width:20px;height:20px}
+}
   </style>
 </head>
-<body>
+<body class="mode-multiply">
+  <div class="pokeball-bg" aria-hidden="true">
+    <span class="pokeball pb1"></span>
+    <span class="pokeball pb2"></span>
+    <span class="pokeball pb3"></span>
+    <span class="pokeball pb4"></span>
+  </div>
   <div class="app">
     <header class="header">
-      <div class="logo" id="appLogo">✖️</div>
-      <h1 id="appTitle">연산 게임</h1>
-      <p class="subtitle" id="appSubtitle">단을 고르고, 풀고 싶은 문제를 직접 골라보세요!</p>
+      <span class="pokeball header-ball left" aria-hidden="true"></span>
+      <span class="pokeball header-ball right" aria-hidden="true"></span>
+      <div class="mascot-wrap"><span class="mon-sprite lg pika" id="appMascot" aria-hidden="true"></span></div>
+      <p class="header-badge" id="appLogo">×</p>
+      <h1 class="hero-title" id="appTitle">연산 게임</h1>
+      <p class="subtitle" id="appSubtitle">피카츄와 함께! 번개처럼 빠른 구구단</p>
     </header>
 
-    <div class="user-bar" id="userBar">
+    <div class="user-bar card" id="userBar">
       <p class="user-bar-title">👤 누가 풀까요?</p>
       <div class="user-pills" id="userPills" role="listbox" aria-label="플레이어 선택"></div>
       <div class="user-add">
@@ -207,9 +331,10 @@ body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Got
     </div>
 
     <nav class="mode-tabs" role="tablist" aria-label="게임 종류">
-      <button type="button" class="mode-tab active" data-mode="multiply">구구단</button>
-      <button type="button" class="mode-tab" data-mode="add">덧셈</button>
-      <button type="button" class="mode-tab" data-mode="subtract">뺄셈</button>
+      <button type="button" class="mode-tab active" data-mode="multiply"><span class="face-icon pika" aria-hidden="true"></span>구구단</button>
+      <button type="button" class="mode-tab" data-mode="add"><span class="face-icon bulb" aria-hidden="true"></span>덧셈</button>
+      <button type="button" class="mode-tab" data-mode="subtract"><span class="face-icon squirt" aria-hidden="true"></span>뺄셈</button>
+      <button type="button" class="mode-tab" data-mode="divide"><span class="face-icon char" aria-hidden="true"></span>나눗셈</button>
     </nav>
 
     <nav class="tabs" role="tablist">
@@ -263,6 +388,7 @@ body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Got
       <div class="reward-panel" id="rewardPanel">
         <p class="record-user" id="recordUserName">플레이어1</p>
         <p class="reward-date">오늘 학습 <span id="todayDate">6월 11일</span></p>
+        <p class="reward-mode" id="rewardModeLabel"><span class="mon-sprite sm pika" aria-hidden="true"></span>구구단 보상</p>
         <div class="reward-score">
           <p class="reward-points"><span id="todayPoints">0</span>점 <small>/ 100점</small></p>
           <div class="stars" id="starDisplay" aria-label="보상 별"></div>
@@ -271,35 +397,30 @@ body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Got
           <p class="reward-name" id="rewardName">보상을 모으는 중...</p>
           <p class="reward-desc" id="rewardDesc">20점마다 별 1개가 채워져요!</p>
         </div>
-        <div class="point-legend">
-          <span class="point-item perfect">완벽해 +4점</span>
-          <span class="point-item learning">배우는중 +2점</span>
-          <span class="point-item trying">노력중 +1점</span>
-          <span class="point-item retry">다시도전 +0점</span>
-        </div>
+        <p class="record-points-hint">완벽해 +4 · 배우는중 +2 · 노력중 +1 · 다시도전 +0</p>
         <div class="reward-tiers" id="rewardTiers"></div>
-      </div>
-
-      <div class="stats-panel" id="statsPanel">
-        <h2 class="section-title">오늘 학습 색깔 통계 <span id="statsModeLabel" style="font-size:.85rem;color:var(--primary)"></span></h2>
-        <p class="stats-total">오늘 푼 문제 <strong id="todayTotal">0</strong>개</p>
-        <p class="stats-top empty" id="todayTopColor">아직 문제를 풀지 않았어요</p>
-        <div class="stats-rows" id="statsRows"></div>
       </div>
 
       <div class="bingo-panel" id="bingoPanel">
         <h2 class="section-title">학습 빙고판</h2>
-        <p class="hint" style="margin-top:0">문제를 풀면 칸이 색깔로 채워져요 (예: 2×1 노랑, 3×3 빨강)</p>
+        <p class="hint bingo-hint">색깔로 실력을 한눈에 볼 수 있어요!</p>
         <div class="bingo-legend">
-          <span class="point-item perfect">완벽해</span>
-          <span class="point-item learning">배우는중</span>
-          <span class="point-item trying">노력중</span>
-          <span class="point-item retry">다시도전</span>
-          <span class="legend-item untouched" style="display:inline-flex;padding:.25rem .5rem;border-radius:8px;font-size:.72rem">미도전</span>
+          <span class="point-item perfect">완벽해 +4</span>
+          <span class="point-item learning">배우는중 +2</span>
+          <span class="point-item trying">노력중 +1</span>
+          <span class="point-item retry">다시도전 +0</span>
+          <span class="bingo-legend-item untouched">미도전</span>
         </div>
         <div class="bingo-wrap">
           <div class="bingo-board" id="bingoBoard"></div>
         </div>
+      </div>
+
+      <div class="stats-panel" id="statsPanel">
+        <h2 class="section-title">오늘 학습 통계</h2>
+        <p class="stats-total">오늘 푼 문제 <strong id="todayTotal">0</strong>개</p>
+        <p class="stats-top empty" id="todayTopColor">아직 문제를 풀지 않았어요</p>
+        <div class="stats-rows" id="statsRows"></div>
       </div>
     </section>
 
@@ -315,19 +436,22 @@ body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Got
         <p class="save-msg" id="rewardSaveMsg" aria-live="polite"></p>
       </div>
     </section>
+
+    <footer class="footer-bar" id="appFooter"><span class="pokeball pokeball-sm" aria-hidden="true"></span><span id="appFooterText">피카츄 구구단 게임</span><span class="pokeball pokeball-sm" aria-hidden="true"></span></footer>
   </div>
 
   <script>
 const USERS_KEY="gugudan-users",DAILY_KEY="gugudan-daily",STATS_KEY="gugudan-daily-stats",TODAY_BINGO_KEY="gugudan-today-bingo",REWARD_KEY="gugudan-rewards",DANS=[2,3,4,5,6,7,8,9];
-const LEGACY_KEYS=["gugudan-daily","gugudan-daily-stats","gugudan-today-bingo","gugudan-rewards","gugudan-records","add-records","sub-records"];
+const LEGACY_KEYS=["gugudan-daily","gugudan-daily-stats","gugudan-today-bingo","gugudan-rewards","gugudan-records","add-records","sub-records","div-records"];
 const MAX_DAILY=100,PTS_PER_STAR=20;
 const STAT_ORDER=["perfect","learning","trying","retry"];
 const STATUS={untouched:{label:"미도전",class:"untouched",points:0},learning:{label:"배우는중",class:"learning",points:2},trying:{label:"노력중",class:"trying",points:1},retry:{label:"다시 도전",class:"retry",points:0},perfect:{label:"완벽해",class:"perfect",points:4}};
 const DEFAULT_REWARDS=[{stars:1,name:"말랑이"},{stars:2,name:"초코과자"},{stars:3,name:"뽑기게임 한판"},{stars:4,name:"놀이터"},{stars:5,name:"키즈카페"}];
-const MODES={multiply:{storage:"gugudan-records",logo:"✖️",title:"구구단 게임",subtitle:"단을 고르고, 풀고 싶은 문제를 직접 골라보세요!",statsLabel:"(전체)"},add:{storage:"add-records",logo:"➕",title:"덧셈 게임",subtitle:"랜덤 덧셈 문제가 바로 나와요!",statsLabel:"(전체)"},subtract:{storage:"sub-records",logo:"➖",title:"뺄셈 게임",subtitle:"랜덤 뺄셈 문제가 바로 나와요!",statsLabel:"(전체)"}};
+const MODE_LIST=["multiply","add","subtract","divide"];
+const MODES={multiply:{storage:"gugudan-records",logo:"×",face:"pika",modeLabel:"구구단",title:"구구단 게임",subtitle:"피카츄와 함께! 번개처럼 빠른 구구단",footer:"피카츄 구구단 게임"},add:{storage:"add-records",logo:"+",face:"squirt",modeLabel:"덧셈",title:"덧셈 게임",subtitle:"꼬부기와 함께! 물방울처럼 차근차근 덧셈",footer:"꼬부기 덧셈 게임"},subtract:{storage:"sub-records",logo:"−",face:"bulb",modeLabel:"뺄셈",title:"뺄셈 게임",subtitle:"이상해씨와 함께! 쑥쑥 자라는 뺄셈",footer:"이상해씨 뺄셈 게임"},divide:{storage:"div-records",logo:"÷",face:"char",modeLabel:"나눗셈",title:"나눗셈 게임",subtitle:"파이리와 함께! 불꽃처럼 나눠보기",footer:"파이리 나눗셈 게임"}};
 const HINT_THEMES=[{id:"fingers",label:"손가락",icon:"🖐️"},{id:"fruit",label:"과일",icon:"🍎",emoji:"🍎"},{id:"animal",label:"동물",icon:"🐶",emoji:"🐶"},{id:"candy",label:"사탕",icon:"🍬",emoji:"🍬"},{id:"cake",label:"케이크",icon:"🍰",emoji:"🍰"}];
-let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1;
-const appLogo=document.getElementById("appLogo"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),statsModeLabel=document.getElementById("statsModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),feedbackEl=document.getElementById("feedback"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
+let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},rewardsByMode={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1;
+const appLogo=document.getElementById("appLogo"),appMascot=document.getElementById("appMascot"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),appFooterText=document.getElementById("appFooterText"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),rewardModeLabel=document.getElementById("rewardModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),feedbackEl=document.getElementById("feedback"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
 function currentUserId(){return usersData.currentId}
 function getCurrentUser(){return usersData.users.find(u=>u.id===usersData.currentId)||usersData.users[0]}
 function userStorageKey(base){return base+":"+currentUserId()}
@@ -335,18 +459,25 @@ function saveUsers(){localStorage.setItem(USERS_KEY,JSON.stringify(usersData))}
 function migrateLegacyToUser(uid){LEGACY_KEYS.forEach(k=>{const v=localStorage.getItem(k);v&&!localStorage.getItem(k+":"+uid)&&localStorage.setItem(k+":"+uid,v)})}
 function loadUsersData(){try{const s=localStorage.getItem(USERS_KEY);if(s){const p=JSON.parse(s);if(p.users&&p.users.length&&p.currentId)return p}}catch{}const id="u"+Date.now();migrateLegacyToUser(id);const data={users:[{id,name:"플레이어1"}],currentId:id};return saveUsersData(data),data}
 function saveUsersData(data){usersData=data,localStorage.setItem(USERS_KEY,JSON.stringify(data))}
-function reloadUserData(){records=loadRecords(),dailyData=loadDaily(),dailyStats=loadStats(),todayBingo=loadTodayBingo(),customRewards=loadRewards()}
+function emptyModePoints(){const o={};return MODE_LIST.forEach(m=>o[m]=0),o}
+function normalizeDailyData(data){const out={};return Object.entries(data||{}).forEach(([k,v])=>{typeof v==="number"?((out[k]=emptyModePoints()),out[k].multiply=v):v&&typeof v==="object"&&!Array.isArray(v)?out[k]={...emptyModePoints(),...v}:out[k]=emptyModePoints()}),out}
+function isLegacyStats(s){return s&&typeof s.total==="number"&&!s.multiply}
+function normalizeStatsData(data){const out={};return Object.entries(data||{}).forEach(([k,v])=>{isLegacyStats(v)?out[k]={multiply:{...v},add:emptyStats(),subtract:emptyStats(),divide:emptyStats()}:v&&v.multiply?out[k]={multiply:emptyStats(),add:emptyStats(),subtract:emptyStats(),divide:emptyStats(),...v}:out[k]={multiply:emptyStats(),add:emptyStats(),subtract:emptyStats(),divide:emptyStats()}}),out}
+function defaultRewardsByMode(){const d=DEFAULT_REWARDS.map(r=>({...r})),o={};return MODE_LIST.forEach(m=>o[m]=d.map(r=>({...r}))),o}
+function loadAllRewards(){try{const s=localStorage.getItem(userStorageKey(REWARD_KEY));if(s){const p=JSON.parse(s);if(Array.isArray(p)&&5===p.length){const c=p.map(r=>({...r})),base=defaultRewardsByMode();return base.multiply=c,base}if(p&&p.multiply){const base=defaultRewardsByMode();return MODE_LIST.forEach(m=>{p[m]&&5===p[m].length&&(base[m]=p[m].map(r=>({...r})))}),base}}}catch{}return defaultRewardsByMode()}
+function syncCustomRewards(){customRewards=(rewardsByMode[gameMode]||DEFAULT_REWARDS.map(r=>({...r}))).map(r=>({...r}))}
+function reloadUserData(){records=loadRecords(),dailyData=loadDaily(),dailyStats=loadStats(),todayBingo=loadTodayBingo(),rewardsByMode=loadAllRewards(),syncCustomRewards()}
 function resetGameState(){closeHint(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
 function renderUserPills(){userPillsEl.innerHTML="",usersData.users.forEach(u=>{const b=document.createElement("button");b.type="button",b.className="user-pill"+(u.id===usersData.currentId?" active":""),b.textContent=u.name,b.setAttribute("role","option"),b.setAttribute("aria-selected",u.id===usersData.currentId?"true":"false"),b.addEventListener("click",()=>switchUser(u.id)),userPillsEl.appendChild(b)}),recordUserNameEl.textContent=getCurrentUser().name}
 function switchUser(uid){if(uid===usersData.currentId)return;usersData.currentId=uid,saveUsers(),reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
 function addUser(){const name=newUserNameEl.value.trim()||"플레이어"+(usersData.users.length+1),id="u"+Date.now()+"_"+Math.floor(1e3*Math.random());usersData.users.push({id,name}),usersData.currentId=id,saveUsers(),newUserNameEl.value="",reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
 function initUsers(){usersData=loadUsersData(),reloadUserData(),renderUserPills()}
-function isRandomMode(){return"add"===gameMode||"subtract"===gameMode}
+function isRandomMode(){return"add"===gameMode||"subtract"===gameMode||"divide"===gameMode}
 function pickRandomPair(){let d,n,t=0;do{d=DANS[Math.floor(Math.random()*DANS.length)],n=1+Math.floor(Math.random()*9),t++}while(currentProblem&&currentProblem.dan===d&&currentProblem.num===n&&t<24);return{d,n}}
 function updateGameLayout(){isRandomMode()?(danSelectArea.classList.add("hidden"),problemPicker.classList.add("hidden")):(danSelectArea.classList.remove("hidden"),updateProblemPicker())}
 function updatePickBtn(){pickBtn.textContent=isRandomMode()?"다음 문제":"다른 문제 고르기"}
 function startRandomProblem(){closeHint();const{d,n}=pickRandomPair();selectProblem(d,n)}
-function getProblem(d,n){if("multiply"===gameMode)return{key:d+"x"+n,text:d+" × "+n,answer:d*n,short:d+"×"+n};if("add"===gameMode)return{key:d+"+"+n,text:d+" + "+n,answer:d+n,short:d+"+"+n};const m=10+d;return{key:m+"-"+n,text:m+" − "+n,answer:m-n,short:m+"−"+n}}
+function getProblem(d,n){if("multiply"===gameMode)return{key:d+"x"+n,text:d+" × "+n,answer:d*n,short:d+"×"+n};if("add"===gameMode)return{key:d+"+"+n,text:d+" + "+n,answer:d+n,short:d+"+"+n};if("divide"===gameMode){const p=d*n;return{key:p+"÷"+d,text:p+" ÷ "+d,answer:n,short:p+"÷"+d}}const m=10+d;return{key:m+"-"+n,text:m+" − "+n,answer:m-n,short:m+"−"+n}}
 function factKey(d,n){return getProblem(d,n).key}
 function todayKey(){const t=new Date;return t.getFullYear()+"-"+(t.getMonth()+1)+"-"+t.getDate()}
 function getTodayParts(){const t=new Date;return{month:t.getMonth()+1,day:t.getDate()}}
@@ -354,37 +485,41 @@ function formatDate(m,d){return m+"월 "+d+"일"}
 function starStr(n){return"★".repeat(n)}
 function rewardDesc(stars){return starStr(stars)+" "+stars*PTS_PER_STAR+"점 달성!"}
 function loadRecords(){try{const s=localStorage.getItem(userStorageKey(MODES[gameMode].storage));return s?JSON.parse(s):{}}catch{return{}}}
-function loadDaily(){try{const s=localStorage.getItem(userStorageKey(DAILY_KEY));return s?JSON.parse(s):{}}catch{return{}}}
-function loadStats(){try{const s=localStorage.getItem(userStorageKey(STATS_KEY));return s?JSON.parse(s):{}}catch{return{}}}
+function loadDaily(){try{const s=localStorage.getItem(userStorageKey(DAILY_KEY));return s?normalizeDailyData(JSON.parse(s)):{}}catch{return{}}}
+function loadStats(){try{const s=localStorage.getItem(userStorageKey(STATS_KEY));return s?normalizeStatsData(JSON.parse(s)):{}}catch{return{}}}
 function loadTodayBingo(){try{const s=localStorage.getItem(userStorageKey(TODAY_BINGO_KEY));return s?JSON.parse(s):{}}catch{return{}}}
 function emptyStats(){return{total:0,perfect:0,learning:0,trying:0,retry:0}}
 function saveTodayBingo(){localStorage.setItem(userStorageKey(TODAY_BINGO_KEY),JSON.stringify(todayBingo))}
 function getTodayBingoMap(){const k=todayKey();return todayBingo[k]||(todayBingo[k]={})}
 function markTodayBingo(d,n,cls){const k=todayKey(),m=getTodayBingoMap();m[factKey(d,n)]=cls,todayBingo[k]=m,saveTodayBingo()}
 function isAttempted(d,n){const r=getRecord(d,n);return r.perfect||r.wrongCount>0||!!(r.month&&r.day)}
-function loadRewards(){try{const s=localStorage.getItem(userStorageKey(REWARD_KEY));if(s){const p=JSON.parse(s);if(Array.isArray(p)&&5===p.length)return p}}catch{}return DEFAULT_REWARDS.map(r=>({...r}))}
+function getTodayDayPoints(){const k=todayKey(),day=dailyData[k];return day?"number"==typeof day?gameMode==="multiply"?day:0:day[gameMode]||0:0}
+function ensureTodayDayPoints(){const k=todayKey();if(!dailyData[k]||"number"==typeof dailyData[k]){const legacy="number"==typeof dailyData[k]?dailyData[k]:0;dailyData[k]=emptyModePoints(),dailyData[k].multiply=legacy,saveDaily()}}
+function getTodayModeStats(){const k=todayKey(),day=dailyStats[k];return day?isLegacyStats(day)?gameMode==="multiply"?day:emptyStats():day[gameMode]||emptyStats():emptyStats()}
+function ensureTodayModeStats(){const k=todayKey();if(!dailyStats[k]||isLegacyStats(dailyStats[k])){const legacy=dailyStats[k]&&isLegacyStats(dailyStats[k])?dailyStats[k]:emptyStats();dailyStats[k]={multiply:{...legacy},add:emptyStats(),subtract:emptyStats(),divide:emptyStats()},saveStats()}}
 function saveRecords(){localStorage.setItem(userStorageKey(MODES[gameMode].storage),JSON.stringify(records))}
 function saveDaily(){localStorage.setItem(userStorageKey(DAILY_KEY),JSON.stringify(dailyData))}
 function saveStats(){localStorage.setItem(userStorageKey(STATS_KEY),JSON.stringify(dailyStats))}
-function getTodayStats(){const k=todayKey();return dailyStats[k]||emptyStats()}
-function addTodayStat(cls){const k=todayKey(),s=dailyStats[k]||emptyStats();s[cls]=(s[cls]||0)+1,s.total++,dailyStats[k]=s,saveStats()}
-function saveRewards(){localStorage.setItem(userStorageKey(REWARD_KEY),JSON.stringify(customRewards))}
+function getTodayStats(){return ensureTodayModeStats(),getTodayModeStats()}
+function addTodayStat(cls){ensureTodayModeStats();const k=todayKey(),s=getTodayModeStats();s[cls]=(s[cls]||0)+1,s.total++,dailyStats[k][gameMode]=s,saveStats()}
+function saveRewards(){rewardsByMode[gameMode]=customRewards.map(r=>({...r})),localStorage.setItem(userStorageKey(REWARD_KEY),JSON.stringify(rewardsByMode))}
 function getRewards(){return customRewards}
 function getRecord(d,n){const k=factKey(d,n);return records[k]||(records[k]={wrongCount:0,perfect:!1,month:null,day:null}),records[k]}
 function getStatus(d,n){const r=getRecord(d,n);return r.perfect?STATUS.perfect:r.wrongCount>=3?STATUS.retry:r.wrongCount===2?STATUS.trying:r.wrongCount===1?STATUS.learning:STATUS.untouched}
-function getTodayPoints(){const k=todayKey();return dailyData[k]||0}
-function addDailyPoints(pts){const k=todayKey(),cur=dailyData[k]||0;dailyData[k]=Math.min(cur+pts,MAX_DAILY),saveDaily()}
+function getTodayPoints(){return ensureTodayDayPoints(),getTodayDayPoints()}
+function addDailyPoints(pts){ensureTodayDayPoints();const k=todayKey(),cur=getTodayDayPoints();dailyData[k][gameMode]=Math.min(cur+pts,MAX_DAILY),saveDaily()}
 function touchRecord(d,n){const r=getRecord(d,n),{month,day}=getTodayParts();r.month=month,r.day=day}
 function markCorrect(d,n){const r=getRecord(d,n);r.perfect=!0,r.wrongCount=0,touchRecord(d,n),saveRecords(),addDailyPoints(STATUS.perfect.points),addTodayStat("perfect"),"multiply"===gameMode&&markTodayBingo(d,n,"perfect")}
 function markWrong(d,n){const r=getRecord(d,n);r.perfect=!1,r.wrongCount=Math.min(r.wrongCount+1,3),touchRecord(d,n);const st=getStatus(d,n);saveRecords(),addDailyPoints(st.points),addTodayStat(st.class),"multiply"===gameMode&&markTodayBingo(d,n,st.class)}
 function getStarCount(pts){return Math.min(5,Math.floor(pts/PTS_PER_STAR))}
 function getCurrentReward(pts){const s=getStarCount(pts);return 0===s?{name:"보상을 모으는 중...",desc:"20점마다 별 1개가 채워져요!"}:{name:getRewards()[s-1].name,desc:rewardDesc(s)}}
 function getTopStat(st){let top=null,max=0;STAT_ORDER.forEach(k=>{st[k]>max&&(max=st[k],top=k)});return max>0?{key:top,count:max,info:STATUS[top]}:null}
-function renderTodayStats(){const st=getTodayStats(),top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",trying:"주황",retry:"빨강"};todayTopColorEl.className="stats-top "+top.key,todayTopColorEl.textContent="오늘 제일 많은 색: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
+function renderTodayStats(){const st=getTodayStats(),top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",trying:"주황",retry:"빨강"};todayTopColorEl.className="stats-top",todayTopColorEl.textContent="가장 많이 푼 유형: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
 function renderBingoBoard(){if("multiply"!==gameMode)return bingoPanel.classList.add("hidden"),void 0;bingoPanel.classList.remove("hidden");const todayMap=getTodayBingoMap();bingoBoardEl.innerHTML="";const corner=document.createElement("div");corner.className="bingo-head",bingoBoardEl.appendChild(corner);for(let n=1;n<=9;n++){const h=document.createElement("div");h.className="bingo-head col-head",h.textContent="×"+n,bingoBoardEl.appendChild(h)}DANS.forEach(d=>{const label=document.createElement("div");label.className="bingo-row-label"+(selectedDans.has(d)?" active":""),label.textContent=d+"단",bingoBoardEl.appendChild(label);for(let n=1;n<=9;n++){const p=getProblem(d,n),st=getStatus(d,n),attempted=isAttempted(d,n),todayCls=todayMap[p.key],cell=document.createElement("div");cell.className="bingo-cell"+(attempted?" "+st.class:" untouched")+(todayCls?" today":"");const title=attempted?st.label:"미도전";cell.title=p.short+" = "+p.answer+" ("+title+")",cell.innerHTML="<span>"+p.short+"</span>"+(attempted?'<span class="bingo-ans">='+p.answer+"</span>":""),bingoBoardEl.appendChild(cell)}})}
-function renderRewardPanel(){const{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),statsModeLabel.textContent=MODES[gameMode].statsLabel,renderTodayStats(),renderBingoBoard()}
-function updateModeUI(){const m=MODES[gameMode];appLogo.textContent=m.logo,appTitle.textContent=m.title,appSubtitle.textContent=m.subtitle}
-function switchMode(mode){if(gameMode===mode)return;closeHint(),gameMode=mode,records=loadRecords(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden"),document.querySelectorAll(".mode-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode)),updateModeUI(),updatePickBtn(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel()}
+function renderRewardPanel(){const m=MODES[gameMode],{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),rewardModeLabel.innerHTML='<span class="mon-sprite sm '+m.face+'" aria-hidden="true"></span>'+m.modeLabel+" 보상",todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),renderTodayStats(),renderBingoBoard()}
+function applyTheme(mode){document.body.classList.remove("mode-multiply","mode-add","mode-subtract","mode-divide"),document.body.classList.add("mode-"+mode)}
+function updateModeUI(){const m=MODES[gameMode];appLogo.textContent=m.logo,appMascot.className="mon-sprite lg "+m.face,appTitle.textContent=m.title,appSubtitle.textContent=m.subtitle,appFooterText.textContent=m.footer,applyTheme(gameMode)}
+function switchMode(mode){if(gameMode===mode)return;closeHint(),gameMode=mode,records=loadRecords(),syncCustomRewards(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden"),document.querySelectorAll(".mode-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode)),updateModeUI(),updatePickBtn(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel()}
 function getHintMeta(){if(!currentProblem)return null;if("add"===gameMode)return{type:"add",a:currentProblem.dan,b:currentProblem.num,answer:currentProblem.answer};if("subtract"===gameMode)return{type:"sub",total:10+currentProblem.dan,remove:currentProblem.num,answer:currentProblem.answer};return null}
 function pickDefaultTheme(meta){if(meta.a<=5&&meta.b<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.a+meta.b+meta.answer)%themes.length]}
 function pickDefaultThemeSub(meta){if(meta.total<=10&&meta.remove<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.total+meta.remove)%themes.length]}
@@ -410,7 +545,7 @@ function resetCurrentProblem(){if(!currentProblem)return;answered=!1,answerInput
 function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{d,n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return feedbackEl.textContent="숫자를 입력해 주세요!",void(feedbackEl.className="feedback wrong");answered=!0,answerInput.disabled=!0;let earned=0;if(u===answer){markCorrect(d,n),earned=STATUS.perfect.points,feedbackEl.textContent="정답! 🎉 ("+getStatus(d,n).label+") +"+earned+"점",feedbackEl.className="feedback correct"}else{markWrong(d,n);const after=getStatus(d,n);earned=after.points,feedbackEl.textContent="틀렸어요. 정답은 "+answer+" ("+after.label+")"+(earned>0?" +"+earned+"점":""),feedbackEl.className="feedback wrong"}retryBtn.classList.remove("hidden"),renderRewardPanel()}
 function renderRewardEdit(){rewardEditList.innerHTML="",getRewards().forEach((r,i)=>{const row=document.createElement("div");row.className="reward-edit-row";const inp=document.createElement("input");inp.type="text",inp.maxLength=30,inp.placeholder="보상 이름 입력",inp.value=r.name,inp.dataset.index=i,inp.setAttribute("aria-label",r.stars+"개 별 보상");const pts=r.stars*PTS_PER_STAR;row.innerHTML='<span class="row-stars">'+starStr(r.stars)+'</span><span class="row-pts">'+pts+"점</span>",row.appendChild(inp),rewardEditList.appendChild(row)})}
 function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");inputs.forEach(inp=>{const i=parseInt(inp.dataset.index,10),v=inp.value.trim();customRewards[i].name=v||DEFAULT_REWARDS[i].name}),saveRewards(),rewardSaveMsg.textContent="보상이 저장됐어요! 🎉",renderRewardPanel(),setTimeout(()=>rewardSaveMsg.textContent="",2500)}
-function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
+function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),rewardsByMode[gameMode]=customRewards.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
 function initTabs(){const tabs=document.querySelectorAll(".tab"),panels={game:document.getElementById("gamePanel"),record:document.getElementById("recordPanel"),rewardEdit:document.getElementById("rewardEditPanel")};tabs.forEach(t=>{t.addEventListener("click",()=>{const g=t.dataset.tab;tabs.forEach(x=>{x.classList.toggle("active",x===t),x.setAttribute("aria-selected",x===t?"true":"false")}),Object.entries(panels).forEach(([k,p])=>{const a=k===g;p.classList.toggle("active",a),p.hidden=!a}),"record"===g&&renderRewardPanel(),"rewardEdit"===g&&renderRewardEdit()})})}
 function initModeTabs(){document.querySelectorAll(".mode-tab").forEach(t=>{t.addEventListener("click",()=>switchMode(t.dataset.mode))})}
 answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
