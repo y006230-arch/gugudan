@@ -175,8 +175,17 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .answer-input-wrap:has(input:disabled) .answer-spin-btn{opacity:.35;cursor:not-allowed;pointer-events:none}
 .submit-btn{padding:10px 20px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-red);color:var(--pika-white);font-size:16px;font-weight:800;cursor:pointer;min-height:52px;box-shadow:0 4px 0 var(--pika-brown)}
 .submit-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--pika-brown)}
-.feedback{text-align:center;margin-top:16px;font-size:17px;font-weight:800;min-height:24px}
-.feedback.correct{color:var(--perfect)}.feedback.wrong{color:var(--retry)}
+.result-overlay{position:fixed;inset:0;background:rgba(61,41,20,.42);z-index:95;display:flex;align-items:center;justify-content:center;padding:16px;pointer-events:none}
+.result-overlay.hidden{display:none}
+.result-modal{text-align:center;animation:resultPop .35s ease;padding:22px 28px 20px;min-width:180px;background:var(--pika-white);border:3px solid var(--pika-brown);border-radius:18px;box-shadow:var(--shadow)}
+.result-image{width:min(72px,22vw);height:auto;display:block;margin:0 auto 8px;border:none;background:transparent}
+.result-image.hidden{display:none}
+.result-wrong-icon{font-size:3.5rem;line-height:1;margin-bottom:8px}
+.result-wrong-icon.hidden{display:none}
+.result-text{font-size:1.45rem;font-weight:800;color:var(--pika-brown)}
+.result-overlay.correct .result-text{color:var(--perfect)}
+.result-overlay.wrong .result-text{color:var(--retry)}
+@keyframes resultPop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 .game-actions{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
 .secondary-btn,.start-btn{padding:10px 16px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);color:var(--pika-brown);font-size:14px;font-weight:800;cursor:pointer;min-height:44px;box-shadow:0 3px 0 var(--pika-brown)}
 .secondary-btn:hover,.start-btn:hover{background:var(--pika-yellow-pale)}
@@ -288,7 +297,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .hint-item:nth-child(4){animation-delay:.2s}.hint-item:nth-child(5){animation-delay:.25s}
 @keyframes popIn{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
 .hint-fingers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.hint-hand{background:var(--pika-yellow-pale);border-radius:16px;padding:12px;border:2px solid var(--pika-brown);min-width:100px}
+.hint-hand{background:transparent;border:none;border-radius:0;padding:0;min-width:0}
 .hint-hand.faded{opacity:.4;filter:grayscale(.5)}
 .hint-hand-label{font-size:12px;font-weight:800;color:var(--pika-brown);margin-bottom:8px}
 .hint-hand-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center}
@@ -384,7 +393,6 @@ body.mode-divide .section-title::before{background-position:50% 0%}
             <button type="submit" class="submit-btn">확인</button>
           </form>
         </div>
-        <p id="feedback" class="feedback" aria-live="polite"></p>
         <div class="game-actions">
           <button type="button" id="hintBtn" class="secondary-btn hint-btn hidden">💡 힌트 보기</button>
           <button type="button" id="retryBtn" class="secondary-btn hidden">다시 풀기</button>
@@ -392,6 +400,14 @@ body.mode-divide .section-title::before{background-position:50% 0%}
         </div>
       </div>
     </section>
+
+    <div id="resultOverlay" class="result-overlay hidden" role="alert" aria-live="assertive">
+      <div class="result-modal">
+        <img id="resultImage" class="result-image hidden" src="assets/thumbs-up.png" alt="">
+        <p id="resultWrongIcon" class="result-wrong-icon hidden" aria-hidden="true">✗</p>
+        <p id="resultText" class="result-text"></p>
+      </div>
+    </div>
 
     <div id="hintOverlay" class="hint-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
       <div class="hint-modal">
@@ -470,8 +486,10 @@ const DEFAULT_REWARDS=[{stars:1,name:"말랑이"},{stars:2,name:"초코과자"},
 const MODE_LIST=["multiply","add","subtract","divide"];
 const MODES={multiply:{storage:"gugudan-records",logo:"×",face:"pika",modeLabel:"구구단",title:"구구단 게임",subtitle:"피카츄와 함께! 번개처럼 빠른 구구단",footer:"피카츄 구구단 게임"},add:{storage:"add-records",logo:"+",face:"squirt",modeLabel:"덧셈",title:"덧셈 게임",subtitle:"꼬부기와 함께! 물방울처럼 차근차근 덧셈",footer:"꼬부기 덧셈 게임"},subtract:{storage:"sub-records",logo:"−",face:"bulb",modeLabel:"뺄셈",title:"뺄셈 게임",subtitle:"이상해씨와 함께! 쑥쑥 자라는 뺄셈",footer:"이상해씨 뺄셈 게임"},divide:{storage:"div-records",logo:"÷",face:"char",modeLabel:"나눗셈",title:"나눗셈 게임",subtitle:"파이리와 함께! 불꽃처럼 나눠보기",footer:"파이리 나눗셈 게임"}};
 const HINT_THEMES=[{id:"fingers",label:"손가락",icon:"🖐️"},{id:"fruit",label:"과일",icon:"🍎",emoji:"🍎"},{id:"animal",label:"동물",icon:"🐶",emoji:"🐶"},{id:"candy",label:"사탕",icon:"🍬",emoji:"🍬"},{id:"cake",label:"케이크",icon:"🍰",emoji:"🍰"}];
-let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},rewardsByMode={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1;
-const appLogo=document.getElementById("appLogo"),appMascot=document.getElementById("appMascot"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),appFooterText=document.getElementById("appFooterText"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),rewardModeLabel=document.getElementById("rewardModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),feedbackEl=document.getElementById("feedback"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
+let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},rewardsByMode={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1,autoAdvanceTimer=null,resultCloseTimer=null;
+const AUTO_ADVANCE_MS=1400;
+const resultOverlay=document.getElementById("resultOverlay"),resultImage=document.getElementById("resultImage"),resultWrongIcon=document.getElementById("resultWrongIcon"),resultText=document.getElementById("resultText");
+const appLogo=document.getElementById("appLogo"),appMascot=document.getElementById("appMascot"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),appFooterText=document.getElementById("appFooterText"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),rewardModeLabel=document.getElementById("rewardModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
 function currentUserId(){return usersData.currentId}
 function getCurrentUser(){return usersData.users.find(u=>u.id===usersData.currentId)||usersData.users[0]}
 function userStorageKey(base){return base+":"+currentUserId()}
@@ -487,16 +505,21 @@ function defaultRewardsByMode(){const d=DEFAULT_REWARDS.map(r=>({...r})),o={};re
 function loadAllRewards(){try{const s=localStorage.getItem(userStorageKey(REWARD_KEY));if(s){const p=JSON.parse(s);if(Array.isArray(p)&&5===p.length){const c=p.map(r=>({...r})),base=defaultRewardsByMode();return base.multiply=c,base}if(p&&p.multiply){const base=defaultRewardsByMode();return MODE_LIST.forEach(m=>{p[m]&&5===p[m].length&&(base[m]=p[m].map(r=>({...r})))}),base}}}catch{}return defaultRewardsByMode()}
 function syncCustomRewards(){customRewards=(rewardsByMode[gameMode]||DEFAULT_REWARDS.map(r=>({...r}))).map(r=>({...r}))}
 function reloadUserData(){records=loadRecords(),dailyData=loadDaily(),dailyStats=loadStats(),todayBingo=loadTodayBingo(),rewardsByMode=loadAllRewards(),syncCustomRewards()}
-function resetGameState(){closeHint(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
+function resetGameState(){clearAutoAdvance(),closeResultPopup(),closeHint(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
 function renderUserPills(){userPillsEl.innerHTML="",usersData.users.forEach(u=>{const b=document.createElement("button");b.type="button",b.className="user-pill"+(u.id===usersData.currentId?" active":""),b.textContent=u.name,b.setAttribute("role","option"),b.setAttribute("aria-selected",u.id===usersData.currentId?"true":"false"),b.addEventListener("click",()=>switchUser(u.id)),userPillsEl.appendChild(b)}),recordUserNameEl.textContent=getCurrentUser().name}
 function switchUser(uid){if(uid===usersData.currentId)return;usersData.currentId=uid,saveUsers(),reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
 function addUser(){const name=newUserNameEl.value.trim()||"플레이어"+(usersData.users.length+1),id="u"+Date.now()+"_"+Math.floor(1e3*Math.random());usersData.users.push({id,name}),usersData.currentId=id,saveUsers(),newUserNameEl.value="",reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
 function initUsers(){usersData=loadUsersData(),reloadUserData(),renderUserPills()}
 function isRandomMode(){return"add"===gameMode||"subtract"===gameMode||"divide"===gameMode}
 function pickRandomPair(){let d,n,t=0;do{d=DANS[Math.floor(Math.random()*DANS.length)],n=1+Math.floor(Math.random()*9),t++}while(currentProblem&&currentProblem.dan===d&&currentProblem.num===n&&t<24);return{d,n}}
+function pickRandomFromSelectedDans(){const dans=[...selectedDans];if(!dans.length)return pickRandomPair();let d,n,t=0;do{d=dans[Math.floor(Math.random()*dans.length)],n=1+Math.floor(Math.random()*9),t++}while(currentProblem&&currentProblem.dan===d&&currentProblem.num===n&&t<24);return{d,n}}
+function closeResultPopup(){resultOverlay.classList.add("hidden"),resultCloseTimer&&(clearTimeout(resultCloseTimer),resultCloseTimer=null)}
+function showResultPopup(correct,msg){closeResultPopup(),resultOverlay.classList.remove("hidden"),resultOverlay.classList.toggle("correct",correct),resultOverlay.classList.toggle("wrong",!correct),resultImage.classList.toggle("hidden",!correct),resultWrongIcon.classList.toggle("hidden",correct),resultText.textContent=msg,resultCloseTimer=setTimeout(closeResultPopup,AUTO_ADVANCE_MS)}
+function clearAutoAdvance(){autoAdvanceTimer&&(clearTimeout(autoAdvanceTimer),autoAdvanceTimer=null)}
+function scheduleAutoAdvance(){clearAutoAdvance(),autoAdvanceTimer=setTimeout(()=>{autoAdvanceTimer=null;if(isRandomMode())startRandomProblem();else if(selectedDans.size>0){const p=pickRandomFromSelectedDans();selectProblem(p.d,p.n)}else showProblemPicker()},AUTO_ADVANCE_MS)}
 function updateGameLayout(){isRandomMode()?(danSelectArea.classList.add("hidden"),problemPicker.classList.add("hidden")):(danSelectArea.classList.remove("hidden"),updateProblemPicker())}
-function updatePickBtn(){pickBtn.textContent=isRandomMode()?"다음 문제":"다른 문제 고르기"}
-function startRandomProblem(){closeHint();const{d,n}=pickRandomPair();selectProblem(d,n)}
+function updatePickBtn(){pickBtn.textContent="다른 문제 고르기",pickBtn.classList.toggle("hidden",isRandomMode())}
+function startRandomProblem(){closeHint(),clearAutoAdvance();const{d,n}=pickRandomPair();selectProblem(d,n)}
 function getProblem(d,n){if("multiply"===gameMode)return{key:d+"x"+n,text:d+" × "+n,answer:d*n,short:d+"×"+n};if("add"===gameMode)return{key:d+"+"+n,text:d+" + "+n,answer:d+n,short:d+"+"+n};if("divide"===gameMode){const p=d*n;return{key:p+"÷"+d,text:p+" ÷ "+d,answer:n,short:p+"÷"+d}}const m=10+d;return{key:m+"-"+n,text:m+" − "+n,answer:m-n,short:m+"−"+n}}
 function factKey(d,n){return getProblem(d,n).key}
 function todayKey(){const t=new Date;return t.getFullYear()+"-"+(t.getMonth()+1)+"-"+t.getDate()}
@@ -558,10 +581,10 @@ function selectDan(d){selectedDans.clear(),selectedDans.add(d),updateDanButtons(
 function updateDanButtons(){danButtons.querySelectorAll(".dan-btn").forEach(b=>{const d=parseInt(b.dataset.dan,10);b.classList.toggle("selected",selectedDans.has(d))})}
 function updateProblemPicker(){selectedDans.size>0?(problemPicker.classList.remove("hidden"),renderProblemPicker()):problemPicker.classList.add("hidden")}
 function renderProblemPicker(){problemGrid.innerHTML="",[...selectedDans].sort((a,b)=>a-b).forEach(d=>{const sec=document.createElement("div");sec.className="picker-section";const title=document.createElement("h3");title.className="picker-dan-title",title.textContent=d+"단",sec.appendChild(title);const grid=document.createElement("div");grid.className="problem-grid";for(let n=1;n<=9;n++){const p=getProblem(d,n),r=getRecord(d,n),st=getStatus(d,n),btn=document.createElement("button");btn.type="button",btn.className="problem-btn "+st.class,btn.innerHTML='<span class="fact">'+p.text.replace(" − "," - ")+'</span><span class="status-label">'+st.label+'</span><span class="date-label">'+dateLabel(r)+"</span>",btn.addEventListener("click",()=>selectProblem(d,n)),grid.appendChild(btn)}sec.appendChild(grid),problemGrid.appendChild(sec)})}
-function selectProblem(d,n){const p=getProblem(d,n);currentProblem={dan:d,num:n,answer:p.answer,text:p.text},answered=!1,isRandomMode()||problemPicker.classList.add("hidden"),gameArea.classList.remove("hidden"),questionEl.textContent=p.text+" = ?",answerInput.value="",answerInput.disabled=!1,feedbackEl.textContent="",feedbackEl.className="feedback",retryBtn.classList.add("hidden"),updateHintBtn(),answerInput.focus()}
-function showProblemPicker(){if(isRandomMode())return void startRandomProblem();closeHint(),gameArea.classList.add("hidden"),currentProblem=null,hintBtn.classList.add("hidden"),renderProblemPicker(),problemPicker.classList.remove("hidden")}
-function resetCurrentProblem(){if(!currentProblem)return;answered=!1,answerInput.value="",answerInput.disabled=!1,feedbackEl.textContent="",feedbackEl.className="feedback",retryBtn.classList.add("hidden"),answerInput.focus()}
-function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{d,n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return feedbackEl.textContent="숫자를 입력해 주세요!",void(feedbackEl.className="feedback wrong");answered=!0,answerInput.disabled=!0;let earned=0;if(u===answer){markCorrect(d,n),earned=STATUS.perfect.points,feedbackEl.textContent="정답! 🎉 ("+getStatus(d,n).label+") +"+earned+"점",feedbackEl.className="feedback correct"}else{markWrong(d,n);const after=getStatus(d,n);earned=after.points,feedbackEl.textContent="틀렸어요. 정답은 "+answer+" ("+after.label+")"+(earned>0?" +"+earned+"점":""),feedbackEl.className="feedback wrong"}retryBtn.classList.remove("hidden"),renderRewardPanel()}
+function selectProblem(d,n){clearAutoAdvance(),closeResultPopup();const p=getProblem(d,n);currentProblem={dan:d,num:n,answer:p.answer,text:p.text},answered=!1,isRandomMode()||problemPicker.classList.add("hidden"),gameArea.classList.remove("hidden"),questionEl.textContent=p.text+" = ?",answerInput.value="",answerInput.disabled=!1,retryBtn.classList.add("hidden"),updateHintBtn(),answerInput.focus()}
+function showProblemPicker(){if(clearAutoAdvance(),closeResultPopup(),isRandomMode())return void startRandomProblem();closeHint(),gameArea.classList.add("hidden"),currentProblem=null,hintBtn.classList.add("hidden"),renderProblemPicker(),problemPicker.classList.remove("hidden")}
+function resetCurrentProblem(){if(clearAutoAdvance(),closeResultPopup(),!currentProblem)return;answered=!1,answerInput.value="",answerInput.disabled=!1,retryBtn.classList.add("hidden"),answerInput.focus()}
+function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{d,n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return void showResultPopup(!1,"숫자를 입력해 주세요!");answered=!0,answerInput.disabled=!0,u===answer?(markCorrect(d,n),showResultPopup(!0,"정답!")):(markWrong(d,n),showResultPopup(!1,"다시 도전!")),renderRewardPanel(),scheduleAutoAdvance()}
 function renderRewardEdit(){rewardEditList.innerHTML="",getRewards().forEach((r,i)=>{const row=document.createElement("div");row.className="reward-edit-row";const inp=document.createElement("input");inp.type="text",inp.maxLength=30,inp.placeholder="보상 이름 입력",inp.value=r.name,inp.dataset.index=i,inp.setAttribute("aria-label",r.stars+"개 별 보상");const pts=r.stars*PTS_PER_STAR;row.innerHTML='<span class="row-stars">'+starStr(r.stars)+'</span><span class="row-pts">'+pts+"점</span>",row.appendChild(inp),rewardEditList.appendChild(row)})}
 function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");inputs.forEach(inp=>{const i=parseInt(inp.dataset.index,10),v=inp.value.trim();customRewards[i].name=v||DEFAULT_REWARDS[i].name}),saveRewards(),rewardSaveMsg.textContent="보상이 저장됐어요! 🎉",renderRewardPanel(),setTimeout(()=>rewardSaveMsg.textContent="",2500)}
 function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),rewardsByMode[gameMode]=customRewards.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
