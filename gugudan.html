@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>연산 게임</title>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f4ff;--surface:#fff;--border:#d8e0f0;--text:#1a2340;--text-muted:#6b7a99;--primary:#4f6ef7;--primary-hover:#3d5ce0;--shadow:0 4px 24px rgba(79,110,247,.12);--radius:16px;--perfect:#22c55e;--perfect-bg:#dcfce7;--learning:#eab308;--learning-bg:#fef9c3;--trying:#f97316;--trying-bg:#ffedd5;--retry:#ef4444;--retry-bg:#fee2e2;--untouched:#e2e8f0;--untouched-bg:#f8fafc;--star:#fbbf24;--star-empty:#e2e8f0}
+body{min-height:100vh;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:radial-gradient(ellipse at 10% 0%,rgba(79,110,247,.1) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(34,197,94,.08) 0%,transparent 50%),var(--bg);color:var(--text);line-height:1.5}
+.app{max-width:640px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.header{text-align:center;margin-bottom:1.5rem}
+.logo{font-size:2.5rem;margin-bottom:.25rem}
+.header h1{font-size:1.75rem;font-weight:800}
+.subtitle{color:var(--text-muted);font-size:.95rem;margin-top:.25rem}
+.user-bar{background:var(--surface);border-radius:var(--radius);padding:.85rem 1rem;box-shadow:var(--shadow);margin-bottom:1rem;border:2px solid var(--border)}
+.user-bar-title{font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:.55rem}
+.user-pills{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.65rem}
+.user-pill{padding:.5rem .85rem;border:2px solid var(--border);border-radius:20px;background:var(--bg);font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s}
+.user-pill:hover{border-color:var(--primary);background:#f5f7ff}
+.user-pill.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.user-add{display:flex;gap:.45rem}
+.user-add input{flex:1;padding:.55rem .75rem;border:2px solid var(--border);border-radius:10px;font-size:.9rem;font-weight:600;outline:none}
+.user-add input:focus{border-color:var(--primary)}
+.user-add-btn{padding:.55rem .9rem;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.user-add-btn:hover{background:var(--primary-hover)}
+.record-user{font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:.35rem}
+.mode-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.mode-tab{flex:1;padding:.7rem .5rem;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-size:.9rem;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.mode-tab:hover{border-color:var(--primary);background:#f5f7ff}
+.mode-tab.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.tabs{display:flex;gap:.35rem;background:var(--surface);padding:.35rem;border-radius:12px;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.tab{flex:1;padding:.6rem .4rem;border:none;border-radius:9px;background:transparent;font-size:.9rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:background .2s,color .2s}
+.tab:hover{background:var(--bg)}
+.tab.active{background:var(--primary);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+.dan-select{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
+.dan-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+.dan-btn{padding:.85rem .5rem;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-size:1rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s}
+.dan-btn:hover{border-color:var(--primary);background:#f5f7ff}
+.dan-btn.selected{border-color:var(--primary);background:var(--primary);color:#fff}
+.hint{margin-top:.75rem;font-size:.85rem;color:var(--text-muted);text-align:center}
+.empty-msg{background:var(--surface);border-radius:var(--radius);padding:2.5rem 1.5rem;box-shadow:var(--shadow);text-align:center;color:var(--text-muted);font-weight:600}
+.problem-picker{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
+.picker-section{margin-bottom:1rem}.picker-section:last-child{margin-bottom:0}
+.picker-dan-title{font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:.6rem}
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.problem-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem .4rem;border-radius:10px;font-size:.85rem;font-weight:700;min-height:58px;border:2px solid transparent;cursor:pointer;transition:transform .1s,box-shadow .2s}
+.problem-btn:hover{transform:scale(1.03);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.problem-btn .fact{font-size:.95rem}.problem-btn .status-label{font-size:.68rem;margin-top:.1rem;opacity:.9}
+.problem-btn .date-label{font-size:.62rem;margin-top:.1rem;opacity:.75}
+.problem-btn.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
+.problem-btn.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
+.problem-btn.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
+.problem-btn.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
+.problem-btn.untouched{background:var(--untouched-bg);color:var(--text-muted);border-color:var(--untouched)}
+.game-area{background:var(--surface);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1rem}
+.current-label{text-align:center;font-size:.9rem;font-weight:600;color:var(--text-muted);margin-bottom:1rem}
+.question-card{text-align:center}
+.question-label{font-size:.85rem;color:var(--text-muted);margin-bottom:.5rem}
+.question{font-size:2.5rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:.05em}
+.answer-form{display:flex;gap:.6rem;max-width:320px;margin:0 auto}
+.answer-form input{flex:1;padding:.85rem 1rem;border:2px solid var(--border);border-radius:12px;font-size:1.25rem;text-align:center;outline:none;transition:border-color .2s}
+.answer-form input:focus{border-color:var(--primary)}
+.submit-btn{padding:.85rem 1.25rem;border:none;border-radius:12px;background:var(--primary);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s}
+.submit-btn:hover{background:var(--primary-hover)}
+.feedback{text-align:center;margin-top:1.25rem;font-size:1.1rem;font-weight:700;min-height:1.6rem}
+.feedback.correct{color:var(--perfect)}.feedback.wrong{color:var(--retry)}
+.game-actions{display:flex;justify-content:center;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+.secondary-btn{padding:.65rem 1.25rem;border:2px solid var(--border);border-radius:10px;background:var(--surface);font-size:.95rem;font-weight:600;color:var(--text);cursor:pointer;transition:border-color .2s}
+.secondary-btn:hover{border-color:var(--primary)}
+.hidden{display:none!important}
+.reward-panel{background:linear-gradient(135deg,#fff9e6,#fff);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem;border:2px solid #fde68a}
+.reward-date{font-size:.95rem;font-weight:700;color:var(--text-muted);margin-bottom:.5rem}
+.reward-date span{color:var(--primary);font-size:1.1rem}
+.reward-score{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.reward-points{font-size:1.5rem;font-weight:800;color:var(--text)}
+.reward-points small{font-size:.85rem;font-weight:600;color:var(--text-muted)}
+.stars{display:flex;gap:.35rem}
+.star{font-size:1.6rem;line-height:1;color:var(--star-empty);transition:color .2s}
+.star.filled{color:var(--star);text-shadow:0 1px 3px rgba(251,191,36,.5)}
+.reward-current{background:var(--surface);border-radius:12px;padding:.85rem 1rem;text-align:center;border:2px solid var(--border)}
+.reward-current .reward-name{font-size:1.15rem;font-weight:800;color:var(--primary)}
+.reward-current .reward-desc{font-size:.8rem;color:var(--text-muted);margin-top:.2rem}
+.reward-tiers{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.75rem}
+.tier-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:600;padding:.35rem .5rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);opacity:.6}
+.tier-item.active{opacity:1;border-color:var(--star);background:#fffbeb;box-shadow:0 2px 6px rgba(251,191,36,.2)}
+.tier-item .tier-stars{color:var(--star);font-size:.7rem;white-space:nowrap}
+.point-legend{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;font-size:.75rem;font-weight:600}
+.point-item{padding:.25rem .5rem;border-radius:8px}
+.point-item.perfect{background:var(--perfect-bg);color:#15803d}
+.point-item.learning{background:var(--learning-bg);color:#a16207}
+.point-item.trying{background:var(--trying-bg);color:#c2410c}
+.point-item.retry{background:var(--retry-bg);color:#b91c1c}
+.record-header{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;padding:.3rem .6rem;border-radius:20px}
+.legend-item::before{content:"";width:12px;height:12px;border-radius:50%}
+.legend-item.perfect{background:var(--perfect-bg);color:#15803d}.legend-item.perfect::before{background:var(--perfect)}
+.legend-item.learning{background:var(--learning-bg);color:#a16207}.legend-item.learning::before{background:var(--learning)}
+.legend-item.trying{background:var(--trying-bg);color:#c2410c}.legend-item.trying::before{background:var(--trying)}
+.legend-item.retry{background:var(--retry-bg);color:#b91c1c}.legend-item.retry::before{background:var(--retry)}
+.legend-item.untouched{background:var(--untouched-bg);color:var(--text-muted)}.legend-item.untouched::before{background:var(--untouched)}
+.record-board{display:flex;flex-direction:column;gap:1rem}
+.dan-section{background:var(--surface);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.dan-section-title{font-size:1rem;font-weight:700;margin-bottom:.75rem;color:var(--primary)}
+.record-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.record-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.65rem .4rem;border-radius:10px;font-size:.85rem;font-weight:700;min-height:72px}
+.record-cell .fact{font-size:.95rem}.record-cell .status-label{font-size:.7rem;margin-top:.15rem;opacity:.9}
+.record-cell .date-label{font-size:.65rem;margin-top:.1rem;opacity:.75;font-weight:600}
+.record-cell.perfect{background:var(--perfect-bg);color:#15803d;border:2px solid var(--perfect)}
+.record-cell.learning{background:var(--learning-bg);color:#a16207;border:2px solid var(--learning)}
+.record-cell.trying{background:var(--trying-bg);color:#c2410c;border:2px solid var(--trying)}
+.record-cell.retry{background:var(--retry-bg);color:#b91c1c;border:2px solid var(--retry)}
+.record-cell.untouched{background:var(--untouched-bg);color:var(--text-muted);border:2px solid var(--untouched)}
+.reward-edit-box{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow)}
+.reward-edit-list{display:flex;flex-direction:column;gap:.75rem;margin:1rem 0}
+.reward-edit-row{display:flex;align-items:center;gap:.6rem;background:var(--bg);border-radius:12px;padding:.75rem;border:2px solid var(--border)}
+.reward-edit-row .row-stars{color:var(--star);font-size:1rem;font-weight:800;min-width:72px;white-space:nowrap}
+.reward-edit-row .row-pts{font-size:.75rem;color:var(--text-muted);font-weight:600;min-width:36px}
+.reward-edit-row input{flex:1;padding:.6rem .75rem;border:2px solid var(--border);border-radius:10px;font-size:.95rem;font-weight:600;outline:none}
+.reward-edit-row input:focus{border-color:var(--primary)}
+.reward-edit-actions{display:flex;flex-direction:column;gap:.6rem}
+.save-msg{text-align:center;font-weight:700;color:var(--perfect);min-height:1.2rem}
+.stats-panel{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-top:1rem}
+.stats-total{font-size:1rem;font-weight:700;margin-bottom:.75rem}
+.stats-total strong{color:var(--primary);font-size:1.25rem}
+.stats-top{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;border-radius:20px;font-size:.85rem;font-weight:700;margin-bottom:1rem;border:2px solid var(--border)}
+.stats-top.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
+.stats-top.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
+.stats-top.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
+.stats-top.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
+.stats-top.empty{background:var(--untouched-bg);color:var(--text-muted)}
+.stats-rows{display:flex;flex-direction:column;gap:.55rem}
+.stat-row{display:grid;grid-template-columns:88px 1fr 52px;align-items:center;gap:.5rem;font-size:.82rem;font-weight:600}
+.stat-row.top-row .stat-bar-wrap{box-shadow:0 0 0 2px rgba(79,110,247,.35);border-radius:8px}
+.stat-label{display:flex;align-items:center;gap:.35rem}
+.stat-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.stat-dot.perfect{background:var(--perfect)}.stat-dot.learning{background:var(--learning)}
+.stat-dot.trying{background:var(--trying)}.stat-dot.retry{background:var(--retry)}
+.stat-bar-wrap{background:var(--bg);border-radius:8px;height:22px;overflow:hidden;border:1px solid var(--border)}
+.stat-bar{height:100%;border-radius:8px;transition:width .4s}
+.stat-bar.perfect{background:var(--perfect)}.stat-bar.learning{background:var(--learning)}
+.stat-bar.trying{background:var(--trying)}.stat-bar.retry{background:var(--retry)}
+.stat-count{text-align:right;color:var(--text-muted);white-space:nowrap}
+.stat-count em{font-style:normal;color:var(--text);font-weight:800}
+.bingo-panel{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-top:1rem}
+.bingo-legend{display:flex;flex-wrap:wrap;gap:.35rem;margin:.75rem 0 1rem;font-size:.72rem;font-weight:600}
+.bingo-wrap{overflow-x:auto;padding-bottom:.25rem}
+.bingo-board{display:grid;grid-template-columns:34px repeat(9,minmax(30px,1fr));gap:3px;min-width:300px}
+.bingo-head,.bingo-row-label{display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:var(--text-muted)}
+.bingo-head.col-head{color:var(--primary)}
+.bingo-row-label{color:var(--primary);background:var(--bg);border-radius:6px}
+.bingo-row-label.active{background:var(--primary);color:#fff}
+.bingo-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:34px;border-radius:6px;font-size:.58rem;font-weight:800;line-height:1.15;border:2px solid var(--untouched);background:var(--untouched-bg);color:var(--text-muted);transition:transform .15s,box-shadow .15s}
+.bingo-cell .bingo-ans{font-size:.5rem;opacity:.85;font-weight:600;margin-top:1px}
+.bingo-cell.perfect{background:var(--perfect-bg);color:#15803d;border-color:var(--perfect)}
+.bingo-cell.learning{background:var(--learning-bg);color:#a16207;border-color:var(--learning)}
+.bingo-cell.trying{background:var(--trying-bg);color:#c2410c;border-color:var(--trying)}
+.bingo-cell.retry{background:var(--retry-bg);color:#b91c1c;border-color:var(--retry)}
+.bingo-cell.today{box-shadow:0 0 0 2px var(--primary);transform:scale(1.04)}
+.hint-btn{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;color:#c2410c}
+.hint-btn:hover{border-color:#f97316;background:#ffedd5}
+.hint-overlay{position:fixed;inset:0;background:rgba(26,35,64,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+.hint-modal{background:linear-gradient(180deg,#fffbeb,#fff);border-radius:20px;max-width:420px;width:100%;max-height:92vh;overflow-y:auto;padding:1.25rem;box-shadow:0 16px 48px rgba(0,0,0,.2);border:3px solid #fde68a;position:relative}
+.hint-close{position:absolute;top:.75rem;right:.75rem;width:36px;height:36px;border:none;border-radius:50%;background:var(--surface);font-size:1.1rem;font-weight:700;cursor:pointer;border:2px solid var(--border)}
+.hint-close:hover{border-color:var(--primary)}
+.hint-title{text-align:center;font-size:1.2rem;font-weight:800;margin-bottom:.25rem;color:var(--text)}
+.hint-sub{text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem}
+.hint-themes{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:1rem}
+.hint-theme{padding:.4rem .65rem;border:2px solid var(--border);border-radius:20px;background:var(--surface);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+.hint-theme.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.hint-step{background:var(--surface);border-radius:14px;padding:1rem;margin-bottom:.75rem;border:2px solid var(--border);text-align:center}
+.hint-step-title{font-size:.95rem;font-weight:800;color:var(--primary);margin-bottom:.6rem}
+.hint-step-desc{font-size:.85rem;font-weight:600;color:var(--text-muted);margin-bottom:.5rem}
+.hint-items{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;min-height:2rem}
+.hint-item{font-size:1.45rem;line-height:1;animation:popIn .35s ease backwards}
+.hint-item.gone{opacity:.25;filter:grayscale(1);transform:scale(.85)}
+.hint-item:nth-child(1){animation-delay:.05s}.hint-item:nth-child(2){animation-delay:.1s}.hint-item:nth-child(3){animation-delay:.15s}.hint-item:nth-child(4){animation-delay:.2s}.hint-item:nth-child(5){animation-delay:.25s}
+@keyframes popIn{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.hint-fingers{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.hint-hand{background:#ffe4c4;border-radius:16px 16px 20px 20px;padding:.65rem .85rem;border:2px solid #fdba74;min-width:100px}
+.hint-hand-label{font-size:.72rem;font-weight:700;color:#c2410c;margin-bottom:.4rem}
+.hint-finger-row{display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap}
+.hint-finger{width:14px;height:28px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#ffd6a8,#ffb86b);border:2px solid #f59e0b;animation:popIn .3s ease backwards}
+.hint-arrow{font-size:1.5rem;margin:.4rem 0;color:var(--primary);font-weight:800}
+.hint-result{background:linear-gradient(135deg,var(--perfect-bg),#fff);border:2px solid var(--perfect);border-radius:14px;padding:1rem;text-align:center;margin-top:.5rem}
+.hint-result strong{font-size:1.35rem;color:#15803d}
+.hint-back{width:100%;margin-top:.75rem}
+@media(max-width:400px){.stat-row{grid-template-columns:76px 1fr 44px;font-size:.78rem}.dan-buttons{grid-template-columns:repeat(2,1fr)}.question{font-size:2rem}.problem-grid,.record-grid{grid-template-columns:repeat(2,1fr)}.reward-tiers{grid-template-columns:1fr}.tab{font-size:.82rem;padding:.55rem .25rem}.reward-edit-row{flex-wrap:wrap}.reward-edit-row .row-stars{min-width:auto}.bingo-cell{font-size:.52rem;min-height:28px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="logo" id="appLogo">✖️</div>
+      <h1 id="appTitle">연산 게임</h1>
+      <p class="subtitle" id="appSubtitle">단을 고르고, 풀고 싶은 문제를 직접 골라보세요!</p>
+    </header>
+
+    <div class="user-bar" id="userBar">
+      <p class="user-bar-title">👤 누가 풀까요?</p>
+      <div class="user-pills" id="userPills" role="listbox" aria-label="플레이어 선택"></div>
+      <div class="user-add">
+        <input type="text" id="newUserName" maxlength="12" placeholder="이름 입력 (예: 민수)" aria-label="새 플레이어 이름">
+        <button type="button" class="user-add-btn" id="addUserBtn">플레이어 추가</button>
+      </div>
+    </div>
+
+    <nav class="mode-tabs" role="tablist" aria-label="게임 종류">
+      <button type="button" class="mode-tab active" data-mode="multiply">구구단</button>
+      <button type="button" class="mode-tab" data-mode="add">덧셈</button>
+      <button type="button" class="mode-tab" data-mode="subtract">뺄셈</button>
+    </nav>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="game" role="tab" aria-selected="true">게임</button>
+      <button type="button" class="tab" data-tab="record" role="tab" aria-selected="false">기록판</button>
+      <button type="button" class="tab" data-tab="rewardEdit" role="tab" aria-selected="false">보상추가</button>
+    </nav>
+
+    <section id="gamePanel" class="panel active" role="tabpanel">
+      <div class="dan-select" id="danSelectArea">
+        <h2 class="section-title">1. 단 선택</h2>
+        <div class="dan-buttons" id="danButtons"></div>
+        <p class="hint">단을 누르면 선택되고, 다른 단을 누르면 바로 바뀌어요</p>
+      </div>
+
+      <div class="problem-picker hidden" id="problemPicker">
+        <h2 class="section-title">2. 문제 고르기</h2>
+        <p class="hint" style="margin-bottom:1rem">풀고 싶은 문제를 눌러주세요</p>
+        <div id="problemGrid"></div>
+      </div>
+
+      <div class="game-area hidden" id="gameArea">
+        <p class="current-label" id="currentLabel">3단 · 3 × 7</p>
+        <div class="question-card">
+          <p class="question-label">문제</p>
+          <p class="question" id="question">3 × 7 = ?</p>
+          <form id="answerForm" class="answer-form">
+            <input type="number" id="answerInput" inputmode="numeric" autocomplete="off" placeholder="정답 입력" aria-label="정답">
+            <button type="submit" class="submit-btn">확인</button>
+          </form>
+        </div>
+        <p id="feedback" class="feedback" aria-live="polite"></p>
+        <div class="game-actions">
+          <button type="button" id="hintBtn" class="secondary-btn hint-btn hidden">💡 힌트 보기</button>
+          <button type="button" id="retryBtn" class="secondary-btn hidden">다시 풀기</button>
+          <button type="button" id="pickBtn" class="secondary-btn">다른 문제 고르기</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="hintOverlay" class="hint-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
+      <div class="hint-modal">
+        <button type="button" class="hint-close" id="hintClose" aria-label="힌트 닫기">✕</button>
+        <h2 class="hint-title" id="hintTitle">힌트 도우미 🌟</h2>
+        <p class="hint-sub" id="hintProblemText">3 + 4 = ?</p>
+        <div class="hint-themes" id="hintThemes"></div>
+        <div id="hintContent"></div>
+        <button type="button" class="secondary-btn hint-back" id="hintBack">문제로 돌아가기</button>
+      </div>
+    </div>
+
+    <section id="recordPanel" class="panel" role="tabpanel" hidden>
+      <div class="reward-panel" id="rewardPanel">
+        <p class="record-user" id="recordUserName">플레이어1</p>
+        <p class="reward-date">오늘 학습 <span id="todayDate">6월 11일</span></p>
+        <div class="reward-score">
+          <p class="reward-points"><span id="todayPoints">0</span>점 <small>/ 100점</small></p>
+          <div class="stars" id="starDisplay" aria-label="보상 별"></div>
+        </div>
+        <div class="reward-current">
+          <p class="reward-name" id="rewardName">보상을 모으는 중...</p>
+          <p class="reward-desc" id="rewardDesc">20점마다 별 1개가 채워져요!</p>
+        </div>
+        <div class="point-legend">
+          <span class="point-item perfect">완벽해 +4점</span>
+          <span class="point-item learning">배우는중 +2점</span>
+          <span class="point-item trying">노력중 +1점</span>
+          <span class="point-item retry">다시도전 +0점</span>
+        </div>
+        <div class="reward-tiers" id="rewardTiers"></div>
+      </div>
+
+      <div class="stats-panel" id="statsPanel">
+        <h2 class="section-title">오늘 학습 색깔 통계 <span id="statsModeLabel" style="font-size:.85rem;color:var(--primary)"></span></h2>
+        <p class="stats-total">오늘 푼 문제 <strong id="todayTotal">0</strong>개</p>
+        <p class="stats-top empty" id="todayTopColor">아직 문제를 풀지 않았어요</p>
+        <div class="stats-rows" id="statsRows"></div>
+      </div>
+
+      <div class="bingo-panel" id="bingoPanel">
+        <h2 class="section-title">학습 빙고판</h2>
+        <p class="hint" style="margin-top:0">문제를 풀면 칸이 색깔로 채워져요 (예: 2×1 노랑, 3×3 빨강)</p>
+        <div class="bingo-legend">
+          <span class="point-item perfect">완벽해</span>
+          <span class="point-item learning">배우는중</span>
+          <span class="point-item trying">노력중</span>
+          <span class="point-item retry">다시도전</span>
+          <span class="legend-item untouched" style="display:inline-flex;padding:.25rem .5rem;border-radius:8px;font-size:.72rem">미도전</span>
+        </div>
+        <div class="bingo-wrap">
+          <div class="bingo-board" id="bingoBoard"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rewardEditPanel" class="panel" role="tabpanel" hidden>
+      <div class="reward-edit-box">
+        <h2 class="section-title">별마다 보상 정하기</h2>
+        <p class="hint" style="margin-top:0">원하는 보상을 직접 적어보세요! 20점마다 별 1개가 채워져요.</p>
+        <div class="reward-edit-list" id="rewardEditList"></div>
+        <div class="reward-edit-actions">
+          <button type="button" id="saveRewardsBtn" class="start-btn">보상 저장</button>
+          <button type="button" id="resetRewardsBtn" class="secondary-btn">기본 보상으로 돌리기</button>
+        </div>
+        <p class="save-msg" id="rewardSaveMsg" aria-live="polite"></p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+const USERS_KEY="gugudan-users",DAILY_KEY="gugudan-daily",STATS_KEY="gugudan-daily-stats",TODAY_BINGO_KEY="gugudan-today-bingo",REWARD_KEY="gugudan-rewards",DANS=[2,3,4,5,6,7,8,9];
+const LEGACY_KEYS=["gugudan-daily","gugudan-daily-stats","gugudan-today-bingo","gugudan-rewards","gugudan-records","add-records","sub-records"];
+const MAX_DAILY=100,PTS_PER_STAR=20;
+const STAT_ORDER=["perfect","learning","trying","retry"];
+const STATUS={untouched:{label:"미도전",class:"untouched",points:0},learning:{label:"배우는중",class:"learning",points:2},trying:{label:"노력중",class:"trying",points:1},retry:{label:"다시 도전",class:"retry",points:0},perfect:{label:"완벽해",class:"perfect",points:4}};
+const DEFAULT_REWARDS=[{stars:1,name:"말랑이"},{stars:2,name:"초코과자"},{stars:3,name:"뽑기게임 한판"},{stars:4,name:"놀이터"},{stars:5,name:"키즈카페"}];
+const MODES={multiply:{storage:"gugudan-records",logo:"✖️",title:"구구단 게임",subtitle:"단을 고르고, 풀고 싶은 문제를 직접 골라보세요!",statsLabel:"(전체)"},add:{storage:"add-records",logo:"➕",title:"덧셈 게임",subtitle:"랜덤 덧셈 문제가 바로 나와요!",statsLabel:"(전체)"},subtract:{storage:"sub-records",logo:"➖",title:"뺄셈 게임",subtitle:"랜덤 뺄셈 문제가 바로 나와요!",statsLabel:"(전체)"}};
+const HINT_THEMES=[{id:"fingers",label:"손가락",icon:"🖐️"},{id:"fruit",label:"과일",icon:"🍎",emoji:"🍎"},{id:"animal",label:"동물",icon:"🐶",emoji:"🐶"},{id:"candy",label:"사탕",icon:"🍬",emoji:"🍬"},{id:"cake",label:"케이크",icon:"🍰",emoji:"🍰"}];
+let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1;
+const appLogo=document.getElementById("appLogo"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),statsModeLabel=document.getElementById("statsModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),feedbackEl=document.getElementById("feedback"),currentLabel=document.getElementById("currentLabel"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
+function currentUserId(){return usersData.currentId}
+function getCurrentUser(){return usersData.users.find(u=>u.id===usersData.currentId)||usersData.users[0]}
+function userStorageKey(base){return base+":"+currentUserId()}
+function saveUsers(){localStorage.setItem(USERS_KEY,JSON.stringify(usersData))}
+function migrateLegacyToUser(uid){LEGACY_KEYS.forEach(k=>{const v=localStorage.getItem(k);v&&!localStorage.getItem(k+":"+uid)&&localStorage.setItem(k+":"+uid,v)})}
+function loadUsersData(){try{const s=localStorage.getItem(USERS_KEY);if(s){const p=JSON.parse(s);if(p.users&&p.users.length&&p.currentId)return p}}catch{}const id="u"+Date.now();migrateLegacyToUser(id);const data={users:[{id,name:"플레이어1"}],currentId:id};return saveUsersData(data),data}
+function saveUsersData(data){usersData=data,localStorage.setItem(USERS_KEY,JSON.stringify(data))}
+function reloadUserData(){records=loadRecords(),dailyData=loadDaily(),dailyStats=loadStats(),todayBingo=loadTodayBingo(),customRewards=loadRewards()}
+function resetGameState(){closeHint(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
+function renderUserPills(){userPillsEl.innerHTML="",usersData.users.forEach(u=>{const b=document.createElement("button");b.type="button",b.className="user-pill"+(u.id===usersData.currentId?" active":""),b.textContent=u.name,b.setAttribute("role","option"),b.setAttribute("aria-selected",u.id===usersData.currentId?"true":"false"),b.addEventListener("click",()=>switchUser(u.id)),userPillsEl.appendChild(b)}),recordUserNameEl.textContent=getCurrentUser().name}
+function switchUser(uid){if(uid===usersData.currentId)return;usersData.currentId=uid,saveUsers(),reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
+function addUser(){const name=newUserNameEl.value.trim()||"플레이어"+(usersData.users.length+1),id="u"+Date.now()+"_"+Math.floor(1e3*Math.random());usersData.users.push({id,name}),usersData.currentId=id,saveUsers(),newUserNameEl.value="",reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
+function initUsers(){usersData=loadUsersData(),reloadUserData(),renderUserPills()}
+function isRandomMode(){return"add"===gameMode||"subtract"===gameMode}
+function pickRandomPair(){let d,n,t=0;do{d=DANS[Math.floor(Math.random()*DANS.length)],n=1+Math.floor(Math.random()*9),t++}while(currentProblem&&currentProblem.dan===d&&currentProblem.num===n&&t<24);return{d,n}}
+function updateGameLayout(){isRandomMode()?(danSelectArea.classList.add("hidden"),problemPicker.classList.add("hidden")):(danSelectArea.classList.remove("hidden"),updateProblemPicker())}
+function updatePickBtn(){pickBtn.textContent=isRandomMode()?"다음 문제":"다른 문제 고르기"}
+function problemLabel(d,p){return isRandomMode()?p.text:d+"단 · "+p.text}
+function startRandomProblem(){closeHint();const{d,n}=pickRandomPair();selectProblem(d,n)}
+function getProblem(d,n){if("multiply"===gameMode)return{key:d+"x"+n,text:d+" × "+n,answer:d*n,short:d+"×"+n};if("add"===gameMode)return{key:d+"+"+n,text:d+" + "+n,answer:d+n,short:d+"+"+n};const m=10+d;return{key:m+"-"+n,text:m+" − "+n,answer:m-n,short:m+"−"+n}}
+function factKey(d,n){return getProblem(d,n).key}
+function todayKey(){const t=new Date;return t.getFullYear()+"-"+(t.getMonth()+1)+"-"+t.getDate()}
+function getTodayParts(){const t=new Date;return{month:t.getMonth()+1,day:t.getDate()}}
+function formatDate(m,d){return m+"월 "+d+"일"}
+function starStr(n){return"★".repeat(n)}
+function rewardDesc(stars){return starStr(stars)+" "+stars*PTS_PER_STAR+"점 달성!"}
+function loadRecords(){try{const s=localStorage.getItem(userStorageKey(MODES[gameMode].storage));return s?JSON.parse(s):{}}catch{return{}}}
+function loadDaily(){try{const s=localStorage.getItem(userStorageKey(DAILY_KEY));return s?JSON.parse(s):{}}catch{return{}}}
+function loadStats(){try{const s=localStorage.getItem(userStorageKey(STATS_KEY));return s?JSON.parse(s):{}}catch{return{}}}
+function loadTodayBingo(){try{const s=localStorage.getItem(userStorageKey(TODAY_BINGO_KEY));return s?JSON.parse(s):{}}catch{return{}}}
+function emptyStats(){return{total:0,perfect:0,learning:0,trying:0,retry:0}}
+function saveTodayBingo(){localStorage.setItem(userStorageKey(TODAY_BINGO_KEY),JSON.stringify(todayBingo))}
+function getTodayBingoMap(){const k=todayKey();return todayBingo[k]||(todayBingo[k]={})}
+function markTodayBingo(d,n,cls){const k=todayKey(),m=getTodayBingoMap();m[factKey(d,n)]=cls,todayBingo[k]=m,saveTodayBingo()}
+function isAttempted(d,n){const r=getRecord(d,n);return r.perfect||r.wrongCount>0||!!(r.month&&r.day)}
+function loadRewards(){try{const s=localStorage.getItem(userStorageKey(REWARD_KEY));if(s){const p=JSON.parse(s);if(Array.isArray(p)&&5===p.length)return p}}catch{}return DEFAULT_REWARDS.map(r=>({...r}))}
+function saveRecords(){localStorage.setItem(userStorageKey(MODES[gameMode].storage),JSON.stringify(records))}
+function saveDaily(){localStorage.setItem(userStorageKey(DAILY_KEY),JSON.stringify(dailyData))}
+function saveStats(){localStorage.setItem(userStorageKey(STATS_KEY),JSON.stringify(dailyStats))}
+function getTodayStats(){const k=todayKey();return dailyStats[k]||emptyStats()}
+function addTodayStat(cls){const k=todayKey(),s=dailyStats[k]||emptyStats();s[cls]=(s[cls]||0)+1,s.total++,dailyStats[k]=s,saveStats()}
+function saveRewards(){localStorage.setItem(userStorageKey(REWARD_KEY),JSON.stringify(customRewards))}
+function getRewards(){return customRewards}
+function getRecord(d,n){const k=factKey(d,n);return records[k]||(records[k]={wrongCount:0,perfect:!1,month:null,day:null}),records[k]}
+function getStatus(d,n){const r=getRecord(d,n);return r.perfect?STATUS.perfect:r.wrongCount>=3?STATUS.retry:r.wrongCount===2?STATUS.trying:r.wrongCount===1?STATUS.learning:STATUS.untouched}
+function getTodayPoints(){const k=todayKey();return dailyData[k]||0}
+function addDailyPoints(pts){const k=todayKey(),cur=dailyData[k]||0;dailyData[k]=Math.min(cur+pts,MAX_DAILY),saveDaily()}
+function touchRecord(d,n){const r=getRecord(d,n),{month,day}=getTodayParts();r.month=month,r.day=day}
+function markCorrect(d,n){const r=getRecord(d,n);r.perfect=!0,r.wrongCount=0,touchRecord(d,n),saveRecords(),addDailyPoints(STATUS.perfect.points),addTodayStat("perfect"),"multiply"===gameMode&&markTodayBingo(d,n,"perfect")}
+function markWrong(d,n){const r=getRecord(d,n);r.perfect=!1,r.wrongCount=Math.min(r.wrongCount+1,3),touchRecord(d,n);const st=getStatus(d,n);saveRecords(),addDailyPoints(st.points),addTodayStat(st.class),"multiply"===gameMode&&markTodayBingo(d,n,st.class)}
+function getStarCount(pts){return Math.min(5,Math.floor(pts/PTS_PER_STAR))}
+function getCurrentReward(pts){const s=getStarCount(pts);return 0===s?{name:"보상을 모으는 중...",desc:"20점마다 별 1개가 채워져요!"}:{name:getRewards()[s-1].name,desc:rewardDesc(s)}}
+function getTopStat(st){let top=null,max=0;STAT_ORDER.forEach(k=>{st[k]>max&&(max=st[k],top=k)});return max>0?{key:top,count:max,info:STATUS[top]}:null}
+function renderTodayStats(){const st=getTodayStats(),top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",trying:"주황",retry:"빨강"};todayTopColorEl.className="stats-top "+top.key,todayTopColorEl.textContent="오늘 제일 많은 색: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
+function renderBingoBoard(){if("multiply"!==gameMode)return bingoPanel.classList.add("hidden"),void 0;bingoPanel.classList.remove("hidden");const todayMap=getTodayBingoMap();bingoBoardEl.innerHTML="";const corner=document.createElement("div");corner.className="bingo-head",bingoBoardEl.appendChild(corner);for(let n=1;n<=9;n++){const h=document.createElement("div");h.className="bingo-head col-head",h.textContent="×"+n,bingoBoardEl.appendChild(h)}DANS.forEach(d=>{const label=document.createElement("div");label.className="bingo-row-label"+(selectedDans.has(d)?" active":""),label.textContent=d+"단",bingoBoardEl.appendChild(label);for(let n=1;n<=9;n++){const p=getProblem(d,n),st=getStatus(d,n),attempted=isAttempted(d,n),todayCls=todayMap[p.key],cell=document.createElement("div");cell.className="bingo-cell"+(attempted?" "+st.class:" untouched")+(todayCls?" today":"");const title=attempted?st.label:"미도전";cell.title=p.short+" = "+p.answer+" ("+title+")",cell.innerHTML="<span>"+p.short+"</span>"+(attempted?'<span class="bingo-ans">='+p.answer+"</span>":""),bingoBoardEl.appendChild(cell)}})}
+function renderRewardPanel(){const{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),statsModeLabel.textContent=MODES[gameMode].statsLabel,renderTodayStats(),renderBingoBoard()}
+function updateModeUI(){const m=MODES[gameMode];appLogo.textContent=m.logo,appTitle.textContent=m.title,appSubtitle.textContent=m.subtitle}
+function switchMode(mode){if(gameMode===mode)return;closeHint(),gameMode=mode,records=loadRecords(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden"),document.querySelectorAll(".mode-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode)),updateModeUI(),updatePickBtn(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel()}
+function getHintMeta(){if(!currentProblem)return null;if("add"===gameMode)return{type:"add",a:currentProblem.dan,b:currentProblem.num,answer:currentProblem.answer};if("subtract"===gameMode)return{type:"sub",total:10+currentProblem.dan,remove:currentProblem.num,answer:currentProblem.answer};return null}
+function pickDefaultTheme(meta){if(meta.a<=5&&meta.b<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.a+meta.b+meta.answer)%themes.length]}
+function pickDefaultThemeSub(meta){if(meta.total<=10&&meta.remove<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.total+meta.remove)%themes.length]}
+function makeHintStep(title,desc){const box=document.createElement("div");box.className="hint-step";const t=document.createElement("p");t.className="hint-step-title",t.textContent=title;const d=document.createElement("p");d.className="hint-step-desc",d.textContent=desc;const body=document.createElement("div");return box.appendChild(t),box.appendChild(d),box.appendChild(body),{box,body}}
+function makeHintArrow(text){const a=document.createElement("div");return a.className="hint-arrow",a.textContent=text,a}
+function makeHintResult(answer){const r=document.createElement("div");r.className="hint-result";const p=document.createElement("p");return p.innerHTML="🎉 정답은 <strong>"+answer+"</strong> 이에요!",r.appendChild(p),r}
+function appendFingerHand(parent,count,label){const wrap=document.createElement("div");wrap.className="hint-fingers";const hand=document.createElement("div");hand.className="hint-hand";const lb=document.createElement("p");lb.className="hint-hand-label",lb.textContent=label;const row=document.createElement("div");row.className="hint-finger-row";for(let i=0;i<count;i++){const f=document.createElement("div");f.className="hint-finger",row.appendChild(f)}hand.appendChild(lb),hand.appendChild(row),wrap.appendChild(hand),parent.appendChild(wrap)}
+function appendEmojiItems(parent,count,emoji,goneFrom){const wrap=document.createElement("div");wrap.className="hint-items";for(let i=0;i<count;i++){const s=document.createElement("span");s.className="hint-item"+(goneFrom>=0&&i>=count-goneFrom?" gone":""),s.textContent=emoji,wrap.appendChild(s)}parent.appendChild(wrap)}
+function renderHintThemes(){hintThemesEl.innerHTML="",HINT_THEMES.forEach(t=>{const b=document.createElement("button");b.type="button",b.className="hint-theme"+(hintTheme===t.id?" active":""),b.textContent=t.icon+" "+t.label,b.addEventListener("click",()=>{hintTheme=t.id,renderHintThemes(),renderHintContent()}),hintThemesEl.appendChild(b)})}
+function renderHintContent(){hintContent.innerHTML="";const meta=getHintMeta();if(!meta)return;const theme=HINT_THEMES.find(t=>t.id===hintTheme)||HINT_THEMES[0],useFingers="fingers"===theme.id,icon=useFingers?"🖐️":theme.emoji;if("add"===meta.type){const{a,b,answer}=meta;let s=makeHintStep("1️⃣ 첫 번째 숫자 "+a,useFingers?"손가락을 펴보세요!":theme.emoji+"를 "+a+"개 세어보세요!");useFingers?appendFingerHand(s.body,a,"첫 번째"):appendEmojiItems(s.body,a,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("➕ 더하기!")),s=makeHintStep("2️⃣ 두 번째 숫자 "+b,useFingers?"다른 손으로 세어보세요!":theme.emoji+"를 "+b+"개 더 놓아요!"),useFingers?appendFingerHand(s.body,b,"두 번째"):appendEmojiItems(s.body,b,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("👇 모두 모아서 세기!")),s=makeHintStep("3️⃣ 하나씩 세어볼까?","전부 합치면 총 몇 개일까요?"),appendEmojiItems(s.body,answer,icon,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintResult(answer))}else{const{total,remove,answer}=meta;let s=makeHintStep("1️⃣ 처음에 "+total+"개",useFingers?"손가락으로 세어보세요!":theme.emoji+"가 "+total+"개 있어요!");useFingers?appendFingerHand(s.body,total,"처음에"):appendEmojiItems(s.body,total,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("➖ "+remove+"개를 친구에게 줬어요!")),s=makeHintStep("2️⃣ "+remove+"개 빼기","줬으니까 사라져요 (흐릿해진 것을 세지 마요!)"),appendEmojiItems(s.body,total,icon,remove),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("👇 남은 것만 세기!")),s=makeHintStep("3️⃣ 남은 "+answer+"개",""),appendEmojiItems(s.body,answer,icon,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintResult(answer))}}
+function openHint(){const meta=getHintMeta();if(!meta)return;hintTheme="add"===meta.type?pickDefaultTheme(meta):pickDefaultThemeSub(meta),hintProblemText.textContent=currentProblem.text+" = ?",renderHintThemes(),renderHintContent(),hintOverlay.classList.remove("hidden"),document.body.style.overflow="hidden"}
+function closeHint(){hintOverlay.classList.add("hidden"),document.body.style.overflow=""}
+function updateHintBtn(){const show=currentProblem&&("add"===gameMode||"subtract"===gameMode);hintBtn.classList.toggle("hidden",!show)}
+function dateLabel(r){return r.month&&r.day?formatDate(r.month,r.day):"-"}
+function initDanButtons(){danButtons.innerHTML="",DANS.forEach(d=>{const b=document.createElement("button");b.type="button",b.className="dan-btn",b.textContent=d+"단",b.dataset.dan=d,b.addEventListener("click",()=>selectDan(d)),danButtons.appendChild(b)})}
+function selectDan(d){selectedDans.clear(),selectedDans.add(d),updateDanButtons(),updateProblemPicker(),gameArea.classList.contains("hidden")||showProblemPicker(),renderBingoBoard()}
+function updateDanButtons(){danButtons.querySelectorAll(".dan-btn").forEach(b=>{const d=parseInt(b.dataset.dan,10);b.classList.toggle("selected",selectedDans.has(d))})}
+function updateProblemPicker(){selectedDans.size>0?(problemPicker.classList.remove("hidden"),renderProblemPicker()):problemPicker.classList.add("hidden")}
+function renderProblemPicker(){problemGrid.innerHTML="",[...selectedDans].sort((a,b)=>a-b).forEach(d=>{const sec=document.createElement("div");sec.className="picker-section";const title=document.createElement("h3");title.className="picker-dan-title",title.textContent=d+"단",sec.appendChild(title);const grid=document.createElement("div");grid.className="problem-grid";for(let n=1;n<=9;n++){const p=getProblem(d,n),r=getRecord(d,n),st=getStatus(d,n),btn=document.createElement("button");btn.type="button",btn.className="problem-btn "+st.class,btn.innerHTML='<span class="fact">'+p.text.replace(" − "," - ")+'</span><span class="status-label">'+st.label+'</span><span class="date-label">'+dateLabel(r)+"</span>",btn.addEventListener("click",()=>selectProblem(d,n)),grid.appendChild(btn)}sec.appendChild(grid),problemGrid.appendChild(sec)})}
+function selectProblem(d,n){const p=getProblem(d,n);currentProblem={dan:d,num:n,answer:p.answer,text:p.text},answered=!1,isRandomMode()||problemPicker.classList.add("hidden"),gameArea.classList.remove("hidden"),currentLabel.textContent=problemLabel(d,p),questionEl.textContent=p.text+" = ?",answerInput.value="",answerInput.disabled=!1,feedbackEl.textContent="",feedbackEl.className="feedback",retryBtn.classList.add("hidden"),updateHintBtn(),answerInput.focus()}
+function showProblemPicker(){if(isRandomMode())return void startRandomProblem();closeHint(),gameArea.classList.add("hidden"),currentProblem=null,hintBtn.classList.add("hidden"),renderProblemPicker(),problemPicker.classList.remove("hidden")}
+function resetCurrentProblem(){if(!currentProblem)return;answered=!1,answerInput.value="",answerInput.disabled=!1,feedbackEl.textContent="",feedbackEl.className="feedback",retryBtn.classList.add("hidden"),answerInput.focus()}
+function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{d,n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return feedbackEl.textContent="숫자를 입력해 주세요!",void(feedbackEl.className="feedback wrong");answered=!0,answerInput.disabled=!0;let earned=0;if(u===answer){markCorrect(d,n),earned=STATUS.perfect.points,feedbackEl.textContent="정답! 🎉 ("+getStatus(d,n).label+") +"+earned+"점",feedbackEl.className="feedback correct"}else{markWrong(d,n);const after=getStatus(d,n);earned=after.points,feedbackEl.textContent="틀렸어요. 정답은 "+answer+" ("+after.label+")"+(earned>0?" +"+earned+"점":""),feedbackEl.className="feedback wrong"}retryBtn.classList.remove("hidden"),renderRewardPanel()}
+function renderRewardEdit(){rewardEditList.innerHTML="",getRewards().forEach((r,i)=>{const row=document.createElement("div");row.className="reward-edit-row";const inp=document.createElement("input");inp.type="text",inp.maxLength=30,inp.placeholder="보상 이름 입력",inp.value=r.name,inp.dataset.index=i,inp.setAttribute("aria-label",r.stars+"개 별 보상");const pts=r.stars*PTS_PER_STAR;row.innerHTML='<span class="row-stars">'+starStr(r.stars)+'</span><span class="row-pts">'+pts+"점</span>",row.appendChild(inp),rewardEditList.appendChild(row)})}
+function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");inputs.forEach(inp=>{const i=parseInt(inp.dataset.index,10),v=inp.value.trim();customRewards[i].name=v||DEFAULT_REWARDS[i].name}),saveRewards(),rewardSaveMsg.textContent="보상이 저장됐어요! 🎉",renderRewardPanel(),setTimeout(()=>rewardSaveMsg.textContent="",2500)}
+function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
+function initTabs(){const tabs=document.querySelectorAll(".tab"),panels={game:document.getElementById("gamePanel"),record:document.getElementById("recordPanel"),rewardEdit:document.getElementById("rewardEditPanel")};tabs.forEach(t=>{t.addEventListener("click",()=>{const g=t.dataset.tab;tabs.forEach(x=>{x.classList.toggle("active",x===t),x.setAttribute("aria-selected",x===t?"true":"false")}),Object.entries(panels).forEach(([k,p])=>{const a=k===g;p.classList.toggle("active",a),p.hidden=!a}),"record"===g&&renderRewardPanel(),"rewardEdit"===g&&renderRewardEdit()})})}
+function initModeTabs(){document.querySelectorAll(".mode-tab").forEach(t=>{t.addEventListener("click",()=>switchMode(t.dataset.mode))})}
+answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
+  </script>
+</body>
+</html>
