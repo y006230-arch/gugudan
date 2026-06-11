@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>포켓몬 연산 게임</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
   <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,7 +21,7 @@
   --untouched:#e0c868;--untouched-bg:#fffce0;--star:#ffd830;--star-empty:#f0e0a0;
   --ball-top:#e83828;--ball-bottom:#fffef8;--ball-band:#4a3820;--ball-ring:#fffef8;
   --sky:#a8d8f8;--grass:#68b850;
-  --font:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif
+  --font:"Jua","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif
 }
 .pokeball{display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid var(--ball-band);background:linear-gradient(180deg,var(--ball-top) 0%,var(--ball-top) 48%,var(--ball-band) 48%,var(--ball-band) 52%,var(--ball-bottom) 52%,var(--ball-bottom) 100%);position:relative;box-shadow:0 2px 0 rgba(0,0,0,.1);flex-shrink:0}
 .pokeball::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38%;height:38%;border-radius:50%;background:var(--ball-ring);border:2px solid var(--ball-band)}
@@ -39,8 +42,12 @@ body.mode-add{--ball-top:#68c0f0}
 body{
   min-height:100vh;font-family:var(--font);font-size:16px;line-height:1.5;color:var(--pika-brown);
   background:linear-gradient(180deg,var(--sky) 0%,#78c0f0 28%,var(--grass) 28%,#58a848 100%);
-  background-attachment:fixed;transition:background .35s ease,color .35s ease
+  background-attachment:fixed;transition:background .35s ease,color .35s ease;
+  font-synthesis:none;-webkit-font-synthesis:none
 }
+body,body *{font-weight:400!important}
+body{background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),url("assets/game-bg.jpg") center top/cover no-repeat fixed!important}
+#gamePanel,#gamePanel *{-webkit-text-stroke-width:.4px;text-stroke-width:.4px}
 body.mode-subtract{
   --pika-yellow:#78c8b0;--pika-yellow-light:#c8e8dc;--pika-yellow-pale:#e4f4ec;
   --pika-red:#48b868;--pika-red-soft:#88d8a8;--pika-brown:#2d5048;--muted:#4a7868;
@@ -325,9 +332,30 @@ body.mode-divide .section-title::before{background-position:50% 0%}
   .mon-sprite.lg{width:56px;height:56px}
   .section-title::before{width:20px;height:20px}
 }
+.intro-screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center;background-color:#d6eefa;overflow:hidden}
+.intro-screen.hidden{display:none}
+.intro-bg-img{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;object-fit:contain;border-radius:16px;pointer-events:none;user-select:none}
+.intro-title{position:relative;font-size:2.6rem;font-weight:800;color:var(--pika-brown);text-shadow:0 2px 0 var(--pika-white);animation:introBob 2.2s ease-in-out infinite}
+@keyframes introBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.intro-sub{position:relative;font-size:1.05rem;font-weight:700;color:var(--pika-brown);margin-top:-8px}
+.intro-stage{position:relative;display:inline-block;line-height:0}
+.intro-start-pos{position:absolute;left:48%;top:68%;transform:translate(-50%,-50%);line-height:normal}
+.intro-start-btn{position:relative;padding:12px 26px;border:3px solid #1a1a1a;border-radius:14px;background:#fff;color:#1a1a1a;font-family:"Silkscreen","Courier New",ui-monospace,monospace;font-size:calc(1.45rem - 7px);font-weight:700;letter-spacing:2px;cursor:pointer;text-shadow:none;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 5px #1a1a1a;animation:introPulse 1.6s ease-in-out infinite}
+.intro-start-btn:active{transform:translateY(1px)}
+.intro-start-btn:active{transform:translateY(2px)}
+@keyframes introPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.intro-screen.playing{justify-content:center}
+.intro-screen.playing .intro-bg-img{max-height:72vh;max-width:90vw;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:none;image-rendering:auto}
+@media(max-width:480px){.intro-title{font-size:2rem}}
   </style>
 </head>
 <body class="mode-multiply">
+  <div id="introScreen" class="intro-screen" role="dialog" aria-label="게임 시작 화면">
+    <div class="intro-stage" id="introStage">
+      <img class="intro-bg-img" id="introImg" src="assets/pikachu.png" alt="" aria-hidden="true">
+      <div class="intro-start-pos"><button type="button" class="intro-start-btn" id="introStartBtn">START</button></div>
+    </div>
+  </div>
   <div class="pokeball-bg" aria-hidden="true">
     <span class="pokeball pb1"></span>
     <span class="pokeball pb2"></span>
@@ -433,7 +461,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
           <p class="reward-name" id="rewardName">보상을 모으는 중...</p>
           <p class="reward-desc" id="rewardDesc">20점마다 별 1개가 채워져요!</p>
         </div>
-        <p class="record-points-hint">완벽해 +4 · 배우는중 +2 · 노력중 +1 · 다시도전 +0</p>
+        <p class="record-points-hint">완벽해 +4 · 노력중 +2 · 다시도전 +0</p>
         <div class="reward-tiers" id="rewardTiers"></div>
       </div>
 
@@ -442,8 +470,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
         <p class="hint bingo-hint">색깔로 실력을 한눈에 볼 수 있어요!</p>
         <div class="bingo-legend">
           <span class="point-item perfect">완벽해 +4</span>
-          <span class="point-item learning">배우는중 +2</span>
-          <span class="point-item trying">노력중 +1</span>
+          <span class="point-item learning">노력중 +2</span>
           <span class="point-item retry">다시도전 +0</span>
           <span class="bingo-legend-item untouched">미도전</span>
         </div>
@@ -480,8 +507,8 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 const USERS_KEY="gugudan-users",DAILY_KEY="gugudan-daily",STATS_KEY="gugudan-daily-stats",TODAY_BINGO_KEY="gugudan-today-bingo",REWARD_KEY="gugudan-rewards",DANS=[2,3,4,5,6,7,8,9];
 const LEGACY_KEYS=["gugudan-daily","gugudan-daily-stats","gugudan-today-bingo","gugudan-rewards","gugudan-records","add-records","sub-records","div-records"];
 const MAX_DAILY=100,PTS_PER_STAR=20;
-const STAT_ORDER=["perfect","learning","trying","retry"];
-const STATUS={untouched:{label:"미도전",class:"untouched",points:0},learning:{label:"배우는중",class:"learning",points:2},trying:{label:"노력중",class:"trying",points:1},retry:{label:"다시 도전",class:"retry",points:0},perfect:{label:"완벽해",class:"perfect",points:4}};
+const STAT_ORDER=["perfect","learning","retry"];
+const STATUS={untouched:{label:"미도전",class:"untouched",points:0},learning:{label:"노력중",class:"learning",points:2},trying:{label:"노력중",class:"learning",points:2},retry:{label:"다시 도전",class:"retry",points:0},perfect:{label:"완벽해",class:"perfect",points:4}};
 const DEFAULT_REWARDS=[{stars:1,name:"말랑이"},{stars:2,name:"초코과자"},{stars:3,name:"뽑기게임 한판"},{stars:4,name:"놀이터"},{stars:5,name:"키즈카페"}];
 const MODE_LIST=["multiply","add","subtract","divide"];
 const MODES={multiply:{storage:"gugudan-records",logo:"×",face:"pika",modeLabel:"구구단",title:"구구단 게임",subtitle:"피카츄와 함께! 번개처럼 빠른 구구단",footer:"피카츄 구구단 게임"},add:{storage:"add-records",logo:"+",face:"squirt",modeLabel:"덧셈",title:"덧셈 게임",subtitle:"꼬부기와 함께! 물방울처럼 차근차근 덧셈",footer:"꼬부기 덧셈 게임"},subtract:{storage:"sub-records",logo:"−",face:"bulb",modeLabel:"뺄셈",title:"뺄셈 게임",subtitle:"이상해씨와 함께! 쑥쑥 자라는 뺄셈",footer:"이상해씨 뺄셈 게임"},divide:{storage:"div-records",logo:"÷",face:"char",modeLabel:"나눗셈",title:"나눗셈 게임",subtitle:"파이리와 함께! 불꽃처럼 나눠보기",footer:"파이리 나눗셈 게임"}};
@@ -548,7 +575,7 @@ function addTodayStat(cls){ensureTodayModeStats();const k=todayKey(),s=getTodayM
 function saveRewards(){rewardsByMode[gameMode]=customRewards.map(r=>({...r})),localStorage.setItem(userStorageKey(REWARD_KEY),JSON.stringify(rewardsByMode))}
 function getRewards(){return customRewards}
 function getRecord(d,n){const k=factKey(d,n);return records[k]||(records[k]={wrongCount:0,perfect:!1,month:null,day:null}),records[k]}
-function getStatus(d,n){const r=getRecord(d,n);return r.perfect?STATUS.perfect:r.wrongCount>=3?STATUS.retry:r.wrongCount===2?STATUS.trying:r.wrongCount===1?STATUS.learning:STATUS.untouched}
+function getStatus(d,n){const r=getRecord(d,n);return r.perfect?STATUS.perfect:r.wrongCount>=3?STATUS.retry:r.wrongCount>=1?STATUS.learning:STATUS.untouched}
 function getTodayPoints(){return ensureTodayDayPoints(),getTodayDayPoints()}
 function addDailyPoints(pts){ensureTodayDayPoints();const k=todayKey(),cur=getTodayDayPoints();dailyData[k][gameMode]=Math.min(cur+pts,MAX_DAILY),saveDaily()}
 function touchRecord(d,n){const r=getRecord(d,n),{month,day}=getTodayParts();r.month=month,r.day=day}
@@ -557,7 +584,7 @@ function markWrong(d,n){const r=getRecord(d,n);r.perfect=!1,r.wrongCount=Math.mi
 function getStarCount(pts){return Math.min(5,Math.floor(pts/PTS_PER_STAR))}
 function getCurrentReward(pts){const s=getStarCount(pts);return 0===s?{name:"보상을 모으는 중...",desc:"20점마다 별 1개가 채워져요!"}:{name:getRewards()[s-1].name,desc:rewardDesc(s)}}
 function getTopStat(st){let top=null,max=0;STAT_ORDER.forEach(k=>{st[k]>max&&(max=st[k],top=k)});return max>0?{key:top,count:max,info:STATUS[top]}:null}
-function renderTodayStats(){const st=getTodayStats(),top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",trying:"주황",retry:"빨강"};todayTopColorEl.className="stats-top",todayTopColorEl.textContent="가장 많이 푼 유형: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
+function renderTodayStats(){const raw=getTodayStats(),st={total:raw.total,perfect:raw.perfect||0,learning:(raw.learning||0)+(raw.trying||0),retry:raw.retry||0},top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",retry:"빨강"};todayTopColorEl.className="stats-top",todayTopColorEl.textContent="가장 많이 푼 유형: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
 function renderBingoBoard(){if("multiply"!==gameMode)return bingoPanel.classList.add("hidden"),void 0;bingoPanel.classList.remove("hidden");const todayMap=getTodayBingoMap();bingoBoardEl.innerHTML="";const corner=document.createElement("div");corner.className="bingo-head",bingoBoardEl.appendChild(corner);for(let n=1;n<=9;n++){const h=document.createElement("div");h.className="bingo-head col-head",h.textContent="×"+n,bingoBoardEl.appendChild(h)}DANS.forEach(d=>{const label=document.createElement("div");label.className="bingo-row-label"+(selectedDans.has(d)?" active":""),label.textContent=d+"단",bingoBoardEl.appendChild(label);for(let n=1;n<=9;n++){const p=getProblem(d,n),st=getStatus(d,n),attempted=isAttempted(d,n),todayCls=todayMap[p.key],cell=document.createElement("div");cell.className="bingo-cell"+(attempted?" "+st.class:" untouched")+(todayCls?" today":"");const title=attempted?st.label:"미도전";cell.title=p.short+" = "+p.answer+" ("+title+")",cell.innerHTML="<span>"+p.short+"</span>"+(attempted?'<span class="bingo-ans">='+p.answer+"</span>":""),bingoBoardEl.appendChild(cell)}})}
 function renderRewardPanel(){const m=MODES[gameMode],{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),rewardModeLabel.innerHTML='<span class="mon-sprite sm '+m.face+'" aria-hidden="true"></span>'+m.modeLabel+" 보상",todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),renderTodayStats(),renderBingoBoard()}
 function applyTheme(mode){document.body.classList.remove("mode-multiply","mode-add","mode-subtract","mode-divide"),document.body.classList.add("mode-"+mode)}
@@ -590,7 +617,11 @@ function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");
 function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),rewardsByMode[gameMode]=customRewards.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
 function initTabs(){const tabs=document.querySelectorAll(".tab"),panels={game:document.getElementById("gamePanel"),record:document.getElementById("recordPanel"),rewardEdit:document.getElementById("rewardEditPanel")};tabs.forEach(t=>{t.addEventListener("click",()=>{const g=t.dataset.tab;tabs.forEach(x=>{x.classList.toggle("active",x===t),x.setAttribute("aria-selected",x===t?"true":"false")}),Object.entries(panels).forEach(([k,p])=>{const a=k===g;p.classList.toggle("active",a),p.hidden=!a}),"record"===g&&renderRewardPanel(),"rewardEdit"===g&&renderRewardEdit()})})}
 function initModeTabs(){document.querySelectorAll(".mode-tab").forEach(t=>{t.addEventListener("click",()=>switchMode(t.dataset.mode))})}
-document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
+const introScreen=document.getElementById("introScreen"),introStartBtn=document.getElementById("introStartBtn"),introImg=document.getElementById("introImg");
+let introTimer=null;const INTRO_CLIP_SEC=2;
+function finishIntro(){introTimer&&(clearTimeout(introTimer),introTimer=null),introScreen.classList.add("hidden")}
+function startIntroClip(){introScreen.classList.add("playing"),introStartBtn.classList.add("hidden"),introImg.src="assets/intro-clip.gif",introTimer=setTimeout(finishIntro,1e3*INTRO_CLIP_SEC)}
+introStartBtn.addEventListener("click",startIntroClip),document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
   </script>
 </body>
 </html>
