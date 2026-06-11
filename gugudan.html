@@ -62,8 +62,8 @@ body.mode-multiply{
   --focus:0 0 0 3px rgba(255,216,48,.5);--star:#ffd830;--star-empty:#f0e0a0;
   background:linear-gradient(180deg,#fff8b0 0%,#ffd830 28%,var(--grass) 28%,#68b850 100%)
 }
-body.mode-multiply .user-pill.active,body.mode-multiply .user-add-btn,body.mode-multiply .tab.active{background:var(--pika-yellow);color:var(--pika-brown);border-color:var(--pika-brown)}
-body.mode-multiply .user-pill.active{box-shadow:0 3px 0 var(--pika-brown)}
+body.mode-multiply .user-pill.active,body.mode-multiply .user-add-btn,body.mode-multiply .tab.active,body.mode-multiply .dan-btn.selected{background:var(--pika-yellow);color:var(--pika-brown);border-color:var(--pika-brown)}
+body.mode-multiply .user-pill.active,body.mode-multiply .dan-btn.selected{box-shadow:0 3px 0 var(--pika-brown)}
 body.mode-add{
   --pika-yellow:#78c8f8;--pika-yellow-light:#c8e8ff;--pika-yellow-pale:#e8f4ff;
   --pika-red:#68c0f0;--pika-red-soft:#a8e0ff;--pika-brown:#3d5870;--muted:#507888;
@@ -161,8 +161,18 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .question-card{text-align:center;padding:8px 0}
 .question{font-size:3rem;font-weight:800;line-height:1.1;color:var(--pika-brown);margin-bottom:24px;text-shadow:2px 2px 0 var(--pika-white),0 0 18px rgba(255,216,48,.52)}
 .answer-form{display:flex;gap:8px;max-width:360px;margin:0 auto}
-.answer-form input{flex:1;padding:10px 12px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);font-size:22px;font-weight:700;text-align:center;color:var(--pika-brown);outline:none;min-height:52px}
-.answer-form input:focus{box-shadow:var(--focus)}
+.answer-input-wrap{position:relative;flex:1;min-width:0}
+.answer-input-wrap input{width:100%;padding:10px 12px;padding-right:4.25rem;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);font-size:22px;font-weight:700;text-align:center;color:var(--pika-brown);outline:none;min-height:52px}
+.answer-input-wrap input[type=number]::-webkit-inner-spin-button,.answer-input-wrap input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.answer-input-wrap input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.answer-input-wrap input:focus{box-shadow:var(--focus)}
+.answer-spinners{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;width:34px}
+.answer-spin-btn{width:0;height:0;border:none;padding:0;background:transparent;cursor:pointer;line-height:0}
+.answer-spin-btn.up{border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:12px solid var(--pika-brown)}
+.answer-spin-btn.down{border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid var(--pika-brown)}
+.answer-spin-btn:hover.up{border-bottom-color:var(--pika-red)}
+.answer-spin-btn:hover.down{border-top-color:var(--pika-red)}
+.answer-input-wrap:has(input:disabled) .answer-spin-btn{opacity:.35;cursor:not-allowed;pointer-events:none}
 .submit-btn{padding:10px 20px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-red);color:var(--pika-white);font-size:16px;font-weight:800;cursor:pointer;min-height:52px;box-shadow:0 4px 0 var(--pika-brown)}
 .submit-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--pika-brown)}
 .feedback{text-align:center;margin-top:16px;font-size:17px;font-weight:800;min-height:24px}
@@ -278,13 +288,17 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .hint-item:nth-child(4){animation-delay:.2s}.hint-item:nth-child(5){animation-delay:.25s}
 @keyframes popIn{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
 .hint-fingers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.hint-hand{background:var(--pika-yellow);border-radius:16px;padding:12px;border:2px solid var(--pika-brown);min-width:100px}
-.hint-hand-label{font-size:12px;font-weight:800;color:var(--pika-red);margin-bottom:8px}
-.hint-finger-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
-.hint-finger{width:14px;height:28px;border-radius:6px;background:var(--pika-yellow-light);border:2px solid var(--pika-brown)}
+.hint-hand{background:var(--pika-yellow-pale);border-radius:16px;padding:12px;border:2px solid var(--pika-brown);min-width:100px}
+.hint-hand.faded{opacity:.4;filter:grayscale(.5)}
+.hint-hand-label{font-size:12px;font-weight:800;color:var(--pika-brown);margin-bottom:8px}
+.hint-hand-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center}
+.hint-hand-img{width:68px;height:68px;background-image:url('assets/finger-hands.png');background-repeat:no-repeat;background-size:500% 200%;display:inline-block;flex-shrink:0}
+.hint-hand-img.n1{background-position:0% 0%}
+.hint-hand-img.n2{background-position:25% 0%}
+.hint-hand-img.n3{background-position:50% 0%}
+.hint-hand-img.n4{background-position:75% 0%}
+.hint-hand-img.n5{background-position:100% 0%}
 .hint-arrow{font-size:22px;margin:8px 0;color:var(--pika-red);font-weight:800}
-.hint-result{background:var(--perfect-bg);border:2px solid var(--perfect);border-radius:16px;padding:16px;text-align:center;margin-top:8px}
-.hint-result strong{font-size:18px;font-weight:800;color:var(--perfect)}
 .hint-back{width:100%;margin-top:12px}
 .footer-bar{margin-top:32px;padding:20px 16px;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:14px;font-weight:800;color:var(--pika-brown);border:3px solid var(--pika-brown);border-radius:20px;background:var(--pika-yellow);box-shadow:var(--shadow)}
 .footer-bar .pokeball-sm{opacity:.85}
@@ -360,7 +374,13 @@ body.mode-divide .section-title::before{background-position:50% 0%}
         <div class="question-card">
           <p class="question" id="question">3 × 7 = ?</p>
           <form id="answerForm" class="answer-form">
-            <input type="number" id="answerInput" inputmode="numeric" autocomplete="off" placeholder="정답 입력" aria-label="정답">
+            <div class="answer-input-wrap">
+              <input type="number" id="answerInput" inputmode="numeric" autocomplete="off" placeholder="정답 입력" aria-label="정답">
+              <div class="answer-spinners">
+                <button type="button" class="answer-spin-btn up" id="answerSpinUp" tabindex="-1" aria-label="숫자 올리기"></button>
+                <button type="button" class="answer-spin-btn down" id="answerSpinDown" tabindex="-1" aria-label="숫자 내리기"></button>
+              </div>
+            </div>
             <button type="submit" class="submit-btn">확인</button>
           </form>
         </div>
@@ -376,11 +396,11 @@ body.mode-divide .section-title::before{background-position:50% 0%}
     <div id="hintOverlay" class="hint-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
       <div class="hint-modal">
         <button type="button" class="hint-close" id="hintClose" aria-label="힌트 닫기">✕</button>
-        <h2 class="hint-title" id="hintTitle">힌트 도우미 🌟</h2>
+        <h2 class="hint-title" id="hintTitle">힌트 도우미</h2>
         <p class="hint-sub" id="hintProblemText">3 + 4 = ?</p>
         <div class="hint-themes" id="hintThemes"></div>
         <div id="hintContent"></div>
-        <button type="button" class="secondary-btn hint-back" id="hintBack">문제로 돌아가기</button>
+        <button type="button" class="secondary-btn hint-back" id="hintBack">확인완료!</button>
       </div>
     </div>
 
@@ -525,11 +545,10 @@ function pickDefaultTheme(meta){if(meta.a<=5&&meta.b<=5)return"fingers";const th
 function pickDefaultThemeSub(meta){if(meta.total<=10&&meta.remove<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.total+meta.remove)%themes.length]}
 function makeHintStep(title,desc){const box=document.createElement("div");box.className="hint-step";const t=document.createElement("p");t.className="hint-step-title",t.textContent=title;const d=document.createElement("p");d.className="hint-step-desc",d.textContent=desc;const body=document.createElement("div");return box.appendChild(t),box.appendChild(d),box.appendChild(body),{box,body}}
 function makeHintArrow(text){const a=document.createElement("div");return a.className="hint-arrow",a.textContent=text,a}
-function makeHintResult(answer){const r=document.createElement("div");r.className="hint-result";const p=document.createElement("p");return p.innerHTML="🎉 정답은 <strong>"+answer+"</strong> 이에요!",r.appendChild(p),r}
-function appendFingerHand(parent,count,label){const wrap=document.createElement("div");wrap.className="hint-fingers";const hand=document.createElement("div");hand.className="hint-hand";const lb=document.createElement("p");lb.className="hint-hand-label",lb.textContent=label;const row=document.createElement("div");row.className="hint-finger-row";for(let i=0;i<count;i++){const f=document.createElement("div");f.className="hint-finger",row.appendChild(f)}hand.appendChild(lb),hand.appendChild(row),wrap.appendChild(hand),parent.appendChild(wrap)}
+function appendFingerHand(parent,count,label,faded){const wrap=document.createElement("div");wrap.className="hint-fingers";const hand=document.createElement("div");hand.className="hint-hand"+(faded?" faded":"");if(label){const lb=document.createElement("p");lb.className="hint-hand-label",lb.textContent=label,hand.appendChild(lb)}const row=document.createElement("div");row.className="hint-hand-row";let left=count;while(left>0){const n=Math.min(left,5),img=document.createElement("span");img.className="hint-hand-img n"+n,img.setAttribute("aria-hidden","true"),row.appendChild(img),left-=n}hand.appendChild(row),wrap.appendChild(hand),parent.appendChild(wrap)}
 function appendEmojiItems(parent,count,emoji,goneFrom){const wrap=document.createElement("div");wrap.className="hint-items";for(let i=0;i<count;i++){const s=document.createElement("span");s.className="hint-item"+(goneFrom>=0&&i>=count-goneFrom?" gone":""),s.textContent=emoji,wrap.appendChild(s)}parent.appendChild(wrap)}
 function renderHintThemes(){hintThemesEl.innerHTML="",HINT_THEMES.forEach(t=>{const b=document.createElement("button");b.type="button",b.className="hint-theme"+(hintTheme===t.id?" active":""),b.textContent=t.icon+" "+t.label,b.addEventListener("click",()=>{hintTheme=t.id,renderHintThemes(),renderHintContent()}),hintThemesEl.appendChild(b)})}
-function renderHintContent(){hintContent.innerHTML="";const meta=getHintMeta();if(!meta)return;const theme=HINT_THEMES.find(t=>t.id===hintTheme)||HINT_THEMES[0],useFingers="fingers"===theme.id,icon=useFingers?"🖐️":theme.emoji;if("add"===meta.type){const{a,b,answer}=meta;let s=makeHintStep("1️⃣ 첫 번째 숫자 "+a,useFingers?"손가락을 펴보세요!":theme.emoji+"를 "+a+"개 세어보세요!");useFingers?appendFingerHand(s.body,a,"첫 번째"):appendEmojiItems(s.body,a,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("➕ 더하기!")),s=makeHintStep("2️⃣ 두 번째 숫자 "+b,useFingers?"다른 손으로 세어보세요!":theme.emoji+"를 "+b+"개 더 놓아요!"),useFingers?appendFingerHand(s.body,b,"두 번째"):appendEmojiItems(s.body,b,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("👇 모두 모아서 세기!")),s=makeHintStep("3️⃣ 하나씩 세어볼까?","전부 합치면 총 몇 개일까요?"),appendEmojiItems(s.body,answer,icon,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintResult(answer))}else{const{total,remove,answer}=meta;let s=makeHintStep("1️⃣ 처음에 "+total+"개",useFingers?"손가락으로 세어보세요!":theme.emoji+"가 "+total+"개 있어요!");useFingers?appendFingerHand(s.body,total,"처음에"):appendEmojiItems(s.body,total,theme.emoji,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("➖ "+remove+"개를 친구에게 줬어요!")),s=makeHintStep("2️⃣ "+remove+"개 빼기","줬으니까 사라져요 (흐릿해진 것을 세지 마요!)"),appendEmojiItems(s.body,total,icon,remove),hintContent.appendChild(s.box),hintContent.appendChild(makeHintArrow("👇 남은 것만 세기!")),s=makeHintStep("3️⃣ 남은 "+answer+"개",""),appendEmojiItems(s.body,answer,icon,-1),hintContent.appendChild(s.box),hintContent.appendChild(makeHintResult(answer))}}
+function renderHintContent(){hintContent.innerHTML="";const meta=getHintMeta();if(!meta)return;const theme=HINT_THEMES.find(t=>t.id===hintTheme)||HINT_THEMES[0],useFingers="fingers"===theme.id;if("add"===meta.type){const{a,b}=meta,s=makeHintStep("모두 모아서 세기","전부 합치면 총 몇 개일까요?");useFingers?(appendFingerHand(s.body,a,""),appendFingerHand(s.body,b,"")):(appendEmojiItems(s.body,a,theme.emoji,-1),appendEmojiItems(s.body,b,theme.emoji,-1)),hintContent.appendChild(s.box)}else{const{answer}=meta,s=makeHintStep("남은 것만 세기","");useFingers?appendFingerHand(s.body,answer,""):appendEmojiItems(s.body,answer,theme.emoji,-1),hintContent.appendChild(s.box)}}
 function openHint(){const meta=getHintMeta();if(!meta)return;hintTheme="add"===meta.type?pickDefaultTheme(meta):pickDefaultThemeSub(meta),hintProblemText.textContent=currentProblem.text+" = ?",renderHintThemes(),renderHintContent(),hintOverlay.classList.remove("hidden"),document.body.style.overflow="hidden"}
 function closeHint(){hintOverlay.classList.add("hidden"),document.body.style.overflow=""}
 function updateHintBtn(){const show=currentProblem&&("add"===gameMode||"subtract"===gameMode);hintBtn.classList.toggle("hidden",!show)}
@@ -548,7 +567,7 @@ function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");
 function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),rewardsByMode[gameMode]=customRewards.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
 function initTabs(){const tabs=document.querySelectorAll(".tab"),panels={game:document.getElementById("gamePanel"),record:document.getElementById("recordPanel"),rewardEdit:document.getElementById("rewardEditPanel")};tabs.forEach(t=>{t.addEventListener("click",()=>{const g=t.dataset.tab;tabs.forEach(x=>{x.classList.toggle("active",x===t),x.setAttribute("aria-selected",x===t?"true":"false")}),Object.entries(panels).forEach(([k,p])=>{const a=k===g;p.classList.toggle("active",a),p.hidden=!a}),"record"===g&&renderRewardPanel(),"rewardEdit"===g&&renderRewardEdit()})})}
 function initModeTabs(){document.querySelectorAll(".mode-tab").forEach(t=>{t.addEventListener("click",()=>switchMode(t.dataset.mode))})}
-answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
+document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
   </script>
 </body>
 </html>
