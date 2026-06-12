@@ -193,6 +193,22 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .result-overlay.correct .result-text{color:var(--perfect)}
 .result-overlay.wrong .result-text{color:var(--retry)}
 @keyframes resultPop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+.event-overlay{position:fixed;inset:0;background:rgba(61,41,20,.55);z-index:120;display:flex;align-items:center;justify-content:center;padding:18px}
+.event-overlay.hidden{display:none}
+.event-modal{text-align:center;animation:resultPop .35s ease;max-width:340px;width:100%;padding:26px 22px 22px;background:var(--pika-white);border:4px solid var(--pika-brown);border-radius:22px;box-shadow:var(--shadow)}
+.event-title{font-size:1.6rem;font-weight:900;color:var(--pika-brown);margin-bottom:10px}
+.event-msg{font-size:1.02rem;line-height:1.5;color:var(--pika-brown);white-space:pre-line;margin-bottom:16px}
+.event-stars{display:flex;justify-content:center;gap:4px;margin-bottom:16px}
+.event-stars.hidden{display:none}
+.event-star{font-size:2rem;color:var(--star);animation:starPop .5s ease backwards}
+.event-star:nth-child(2){animation-delay:.1s}.event-star:nth-child(3){animation-delay:.2s}.event-star:nth-child(4){animation-delay:.3s}.event-star:nth-child(5){animation-delay:.4s}
+@keyframes starPop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.event-btn{font-size:1.1rem;padding:12px 28px}
+.score-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin:0 auto 14px;padding:8px 18px;width:fit-content;border:3px solid var(--pika-brown);border-radius:9999px;background:var(--pika-yellow-pale);box-shadow:0 3px 0 var(--pika-brown);font-weight:800}
+.score-bar.hidden{display:none}
+.score-bar .score-bar-label{font-size:.95rem;color:var(--pika-brown)}
+.score-bar #scoreBarVal{font-size:1.4rem;color:#e07a00}
+.score-bar .score-bar-max{font-size:.9rem;color:var(--muted)}
 .game-actions{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
 .secondary-btn,.start-btn{padding:10px 16px;border:2px solid var(--pika-brown);border-radius:14px;background:var(--pika-white);color:var(--pika-brown);font-size:14px;font-weight:800;cursor:pointer;min-height:44px;box-shadow:0 3px 0 var(--pika-brown)}
 .secondary-btn:hover,.start-btn:hover{background:var(--pika-yellow-pale)}
@@ -278,8 +294,9 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 .bingo-head.col-head{color:var(--pika-red)}
 .bingo-row-label{background:var(--pika-yellow-pale);border-radius:8px;border:2px solid var(--pika-brown)}
 .bingo-row-label.active{background:var(--pika-red);color:var(--pika-white)}
-.bingo-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:36px;border-radius:8px;font-size:10px;font-weight:800;line-height:1.15;border:2px solid var(--pika-brown);background:var(--untouched-bg);color:var(--muted)}
+.bingo-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:36px;border-radius:8px;font-size:10px;font-weight:800;line-height:1.15;border:2px solid var(--pika-brown);background:var(--untouched-bg);color:var(--muted)}
 .bingo-cell .bingo-ans{font-size:9px;margin-top:2px;opacity:.9}
+.bingo-cell.done::after{content:"✓";position:absolute;top:-5px;right:-5px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;background:#fff;color:#1fa855;border:2px solid #1fa855;border-radius:50%;font-size:9px;font-weight:900;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .bingo-cell.perfect{background:var(--perfect);color:#fff;border-color:#158040}
 .bingo-cell.learning{background:var(--learning);color:var(--learning-text);border-color:#c8a000}
 .bingo-cell.trying{background:var(--trying);color:#fff;border-color:#c05810}
@@ -383,8 +400,8 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 
     <nav class="mode-tabs" role="tablist" aria-label="게임 종류">
       <button type="button" class="mode-tab active" data-mode="multiply"><span class="face-icon pika" aria-hidden="true"></span>구구단</button>
-      <button type="button" class="mode-tab" data-mode="add"><span class="face-icon bulb" aria-hidden="true"></span>덧셈</button>
-      <button type="button" class="mode-tab" data-mode="subtract"><span class="face-icon squirt" aria-hidden="true"></span>뺄셈</button>
+      <button type="button" class="mode-tab" data-mode="add"><span class="face-icon squirt" aria-hidden="true"></span>덧셈</button>
+      <button type="button" class="mode-tab" data-mode="subtract"><span class="face-icon bulb" aria-hidden="true"></span>뺄셈</button>
       <button type="button" class="mode-tab" data-mode="divide"><span class="face-icon char" aria-hidden="true"></span>나눗셈</button>
     </nav>
 
@@ -408,6 +425,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
       </div>
 
       <div class="game-area hidden" id="gameArea">
+        <div class="score-bar hidden" id="scoreBar"><span class="score-bar-label">⭐ 점수</span> <strong id="scoreBarVal">0</strong> <span class="score-bar-max">/ 100</span></div>
         <div class="question-card">
           <p class="question" id="question">3 × 7 = ?</p>
           <form id="answerForm" class="answer-form">
@@ -437,6 +455,15 @@ body.mode-divide .section-title::before{background-position:50% 0%}
       </div>
     </div>
 
+    <div id="eventOverlay" class="event-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="eventTitle">
+      <div class="event-modal">
+        <p id="eventTitle" class="event-title"></p>
+        <p id="eventMsg" class="event-msg"></p>
+        <div id="eventStars" class="event-stars hidden"></div>
+        <button type="button" id="eventBtn" class="start-btn event-btn">확인</button>
+      </div>
+    </div>
+
     <div id="hintOverlay" class="hint-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
       <div class="hint-modal">
         <button type="button" class="hint-close" id="hintClose" aria-label="힌트 닫기">✕</button>
@@ -461,7 +488,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
           <p class="reward-name" id="rewardName">보상을 모으는 중...</p>
           <p class="reward-desc" id="rewardDesc">20점마다 별 1개가 채워져요!</p>
         </div>
-        <p class="record-points-hint">완벽해 +4 · 노력중 +2 · 다시도전 +0</p>
+        <p class="record-points-hint">정답 +10점 · 오답 −5점 · 100점이면 미션 완료!</p>
         <div class="reward-tiers" id="rewardTiers"></div>
       </div>
 
@@ -469,9 +496,9 @@ body.mode-divide .section-title::before{background-position:50% 0%}
         <h2 class="section-title">학습 빙고판</h2>
         <p class="hint bingo-hint">색깔로 실력을 한눈에 볼 수 있어요!</p>
         <div class="bingo-legend">
-          <span class="point-item perfect">완벽해 +4</span>
-          <span class="point-item learning">노력중 +2</span>
-          <span class="point-item retry">다시도전 +0</span>
+          <span class="point-item perfect">완벽해 (한 번에) ✓</span>
+          <span class="point-item learning">노력중 (1~2번)</span>
+          <span class="point-item retry">다시도전 (3번+)</span>
           <span class="bingo-legend-item untouched">미도전</span>
         </div>
         <div class="bingo-wrap">
@@ -514,8 +541,10 @@ const MODE_LIST=["multiply","add","subtract","divide"];
 const MODES={multiply:{storage:"gugudan-records",logo:"×",face:"pika",modeLabel:"구구단",title:"구구단 게임",subtitle:"피카츄와 함께! 번개처럼 빠른 구구단",footer:"피카츄 구구단 게임"},add:{storage:"add-records",logo:"+",face:"squirt",modeLabel:"덧셈",title:"덧셈 게임",subtitle:"꼬부기와 함께! 물방울처럼 차근차근 덧셈",footer:"꼬부기 덧셈 게임"},subtract:{storage:"sub-records",logo:"−",face:"bulb",modeLabel:"뺄셈",title:"뺄셈 게임",subtitle:"이상해씨와 함께! 쑥쑥 자라는 뺄셈",footer:"이상해씨 뺄셈 게임"},divide:{storage:"div-records",logo:"÷",face:"char",modeLabel:"나눗셈",title:"나눗셈 게임",subtitle:"파이리와 함께! 불꽃처럼 나눠보기",footer:"파이리 나눗셈 게임"}};
 const HINT_THEMES=[{id:"fingers",label:"손가락",icon:"🖐️"},{id:"fruit",label:"과일",icon:"🍎",emoji:"🍎"},{id:"animal",label:"동물",icon:"🐶",emoji:"🐶"},{id:"candy",label:"사탕",icon:"🍬",emoji:"🍬"},{id:"cake",label:"케이크",icon:"🍰",emoji:"🍰"}];
 let usersData,gameMode="multiply",hintTheme="fingers",records={},dailyData={},dailyStats={},todayBingo={},rewardsByMode={},customRewards=DEFAULT_REWARDS.map(r=>({...r})),selectedDans=new Set(),currentProblem=null,answered=!1,autoAdvanceTimer=null,resultCloseTimer=null;
-const AUTO_ADVANCE_MS=1400;
+let danQueue=[],currentDan=null,danRunActive=!1,eventAction=null;
+const AUTO_ADVANCE_MS=1400,WIN_SCORE=100,CORRECT_PTS=10,WRONG_PTS=5;
 const resultOverlay=document.getElementById("resultOverlay"),resultImage=document.getElementById("resultImage"),resultWrongIcon=document.getElementById("resultWrongIcon"),resultText=document.getElementById("resultText");
+const eventOverlay=document.getElementById("eventOverlay"),eventTitle=document.getElementById("eventTitle"),eventMsg=document.getElementById("eventMsg"),eventStars=document.getElementById("eventStars"),eventBtn=document.getElementById("eventBtn"),scoreBar=document.getElementById("scoreBar"),scoreBarVal=document.getElementById("scoreBarVal");
 const appLogo=document.getElementById("appLogo"),appMascot=document.getElementById("appMascot"),appTitle=document.getElementById("appTitle"),appSubtitle=document.getElementById("appSubtitle"),appFooterText=document.getElementById("appFooterText"),userPillsEl=document.getElementById("userPills"),newUserNameEl=document.getElementById("newUserName"),addUserBtn=document.getElementById("addUserBtn"),recordUserNameEl=document.getElementById("recordUserName"),rewardModeLabel=document.getElementById("rewardModeLabel"),bingoPanel=document.getElementById("bingoPanel"),danSelectArea=document.getElementById("danSelectArea"),hintBtn=document.getElementById("hintBtn"),hintOverlay=document.getElementById("hintOverlay"),hintClose=document.getElementById("hintClose"),hintBack=document.getElementById("hintBack"),hintProblemText=document.getElementById("hintProblemText"),hintThemesEl=document.getElementById("hintThemes"),hintContent=document.getElementById("hintContent"),danButtons=document.getElementById("danButtons"),problemPicker=document.getElementById("problemPicker"),problemGrid=document.getElementById("problemGrid"),gameArea=document.getElementById("gameArea"),questionEl=document.getElementById("question"),answerForm=document.getElementById("answerForm"),answerInput=document.getElementById("answerInput"),retryBtn=document.getElementById("retryBtn"),pickBtn=document.getElementById("pickBtn"),todayDateEl=document.getElementById("todayDate"),todayPointsEl=document.getElementById("todayPoints"),starDisplay=document.getElementById("starDisplay"),rewardNameEl=document.getElementById("rewardName"),rewardDescEl=document.getElementById("rewardDesc"),rewardTiersEl=document.getElementById("rewardTiers"),todayTotalEl=document.getElementById("todayTotal"),todayTopColorEl=document.getElementById("todayTopColor"),statsRowsEl=document.getElementById("statsRows"),bingoBoardEl=document.getElementById("bingoBoard"),rewardEditList=document.getElementById("rewardEditList"),saveRewardsBtn=document.getElementById("saveRewardsBtn"),resetRewardsBtn=document.getElementById("resetRewardsBtn"),rewardSaveMsg=document.getElementById("rewardSaveMsg");
 function currentUserId(){return usersData.currentId}
 function getCurrentUser(){return usersData.users.find(u=>u.id===usersData.currentId)||usersData.users[0]}
@@ -532,10 +561,10 @@ function defaultRewardsByMode(){const d=DEFAULT_REWARDS.map(r=>({...r})),o={};re
 function loadAllRewards(){try{const s=localStorage.getItem(userStorageKey(REWARD_KEY));if(s){const p=JSON.parse(s);if(Array.isArray(p)&&5===p.length){const c=p.map(r=>({...r})),base=defaultRewardsByMode();return base.multiply=c,base}if(p&&p.multiply){const base=defaultRewardsByMode();return MODE_LIST.forEach(m=>{p[m]&&5===p[m].length&&(base[m]=p[m].map(r=>({...r})))}),base}}}catch{}return defaultRewardsByMode()}
 function syncCustomRewards(){customRewards=(rewardsByMode[gameMode]||DEFAULT_REWARDS.map(r=>({...r}))).map(r=>({...r}))}
 function reloadUserData(){records=loadRecords(),dailyData=loadDaily(),dailyStats=loadStats(),todayBingo=loadTodayBingo(),rewardsByMode=loadAllRewards(),syncCustomRewards()}
-function resetGameState(){clearAutoAdvance(),closeResultPopup(),closeHint(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
+function resetGameState(){clearAutoAdvance(),closeResultPopup(),closeEvent(),closeHint(),selectedDans.clear(),danQueue=[],currentDan=null,danRunActive=!1,currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden")}
 function renderUserPills(){userPillsEl.innerHTML="",usersData.users.forEach(u=>{const b=document.createElement("button");b.type="button",b.className="user-pill"+(u.id===usersData.currentId?" active":""),b.textContent=u.name,b.setAttribute("role","option"),b.setAttribute("aria-selected",u.id===usersData.currentId?"true":"false"),b.addEventListener("click",()=>switchUser(u.id)),userPillsEl.appendChild(b)}),recordUserNameEl.textContent=getCurrentUser().name}
-function switchUser(uid){if(uid===usersData.currentId)return;usersData.currentId=uid,saveUsers(),reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
-function addUser(){const name=newUserNameEl.value.trim()||"플레이어"+(usersData.users.length+1),id="u"+Date.now()+"_"+Math.floor(1e3*Math.random());usersData.users.push({id,name}),usersData.currentId=id,saveUsers(),newUserNameEl.value="",reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel(),renderRewardEdit()}
+function switchUser(uid){if(uid===usersData.currentId)return;usersData.currentId=uid,saveUsers(),reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():initDanButtons(),renderRewardPanel(),renderRewardEdit()}
+function addUser(){const name=newUserNameEl.value.trim()||"플레이어"+(usersData.users.length+1),id="u"+Date.now()+"_"+Math.floor(1e3*Math.random());usersData.users.push({id,name}),usersData.currentId=id,saveUsers(),newUserNameEl.value="",reloadUserData(),resetGameState(),renderUserPills(),updateGameLayout(),isRandomMode()?startRandomProblem():initDanButtons(),renderRewardPanel(),renderRewardEdit()}
 function initUsers(){usersData=loadUsersData(),reloadUserData(),renderUserPills()}
 function isRandomMode(){return"add"===gameMode||"subtract"===gameMode||"divide"===gameMode}
 function pickRandomPair(){let d,n,t=0;do{d=DANS[Math.floor(Math.random()*DANS.length)],n=1+Math.floor(Math.random()*9),t++}while(currentProblem&&currentProblem.dan===d&&currentProblem.num===n&&t<24);return{d,n}}
@@ -543,9 +572,21 @@ function pickRandomFromSelectedDans(){const dans=[...selectedDans];if(!dans.leng
 function closeResultPopup(){resultOverlay.classList.add("hidden"),resultCloseTimer&&(clearTimeout(resultCloseTimer),resultCloseTimer=null)}
 function showResultPopup(correct,msg){closeResultPopup(),resultOverlay.classList.remove("hidden"),resultOverlay.classList.toggle("correct",correct),resultOverlay.classList.toggle("wrong",!correct),resultImage.classList.toggle("hidden",!correct),resultWrongIcon.classList.toggle("hidden",correct),resultText.textContent=msg,resultCloseTimer=setTimeout(closeResultPopup,AUTO_ADVANCE_MS)}
 function clearAutoAdvance(){autoAdvanceTimer&&(clearTimeout(autoAdvanceTimer),autoAdvanceTimer=null)}
-function scheduleAutoAdvance(){clearAutoAdvance(),autoAdvanceTimer=setTimeout(()=>{autoAdvanceTimer=null;if(isRandomMode())startRandomProblem();else if(selectedDans.size>0){const p=pickRandomFromSelectedDans();selectProblem(p.d,p.n)}else showProblemPicker()},AUTO_ADVANCE_MS)}
-function updateGameLayout(){isRandomMode()?(danSelectArea.classList.add("hidden"),problemPicker.classList.add("hidden")):(danSelectArea.classList.remove("hidden"),updateProblemPicker())}
-function updatePickBtn(){pickBtn.textContent="다른 문제 고르기",pickBtn.classList.toggle("hidden",isRandomMode())}
+function scheduleAutoAdvance(){clearAutoAdvance(),autoAdvanceTimer=setTimeout(()=>{autoAdvanceTimer=null;if("multiply"===gameMode)nextDanProblem();else if(isRandomMode())startRandomProblem();else if(selectedDans.size>0){const p=pickRandomFromSelectedDans();selectProblem(p.d,p.n)}else showProblemPicker()},AUTO_ADVANCE_MS)}
+function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startDanRun(d){clearAutoAdvance(),closeResultPopup(),closeEvent(),closeHint(),currentDan=d,selectedDans.clear(),selectedDans.add(d),danQueue=shuffleArr([1,2,3,4,5,6,7,8,9]),danRunActive=!0,updateDanButtons(),problemPicker.classList.add("hidden"),renderBingoBoard(),updateScoreBar(),nextDanProblem()}
+function removeFromQueue(num){const i=danQueue.indexOf(num);i>=0&&danQueue.splice(i,1)}
+function nextDanProblem(){clearAutoAdvance();if(!danQueue.length)return void danComplete();let num=danQueue[Math.floor(Math.random()*danQueue.length)];currentProblem&&danQueue.length>1&&currentProblem.num===num&&(num=danQueue[(danQueue.indexOf(num)+1)%danQueue.length]),selectProblem(currentDan,num)}
+function danComplete(){danRunActive=!1;const next=currentDan<9?currentDan+1:null;showEvent({title:currentDan+"단 완료! 🎉",msg:next?currentDan+"단 문제를 모두 풀었어요!\n이제 "+next+"단에 도전할 수 있어요.":"모든 단을 다 풀었어요!\n정말 대단해요! 👏",btn:next?next+"단 도전하기":"2단부터 다시",action:()=>{closeEvent(),startDanRun(next||2)}})}
+function showMissionComplete(){danRunActive=!1,showEvent({title:"미션 완료! 🎉",msg:"100점을 모두 모았어요!\n별 다섯 개를 전부 모았어요! ⭐\n멋진 보상을 받을 수 있어요 🎁",stars:5,btn:"보상 확인하기",action:()=>{closeEvent(),gotoRecordTab()}})}
+function showGameOver(){danRunActive=!1,showEvent({title:"다음 기회에! 💪",msg:"포인트를 모두 잃었어요.\n처음부터 다시 도전해 볼까요?",btn:"다시 시작",action:()=>{closeEvent(),restartGame()}})}
+function restartGame(){setDailyPoints(0),resetDanProgress(currentDan),renderRewardPanel(),startDanRun(currentDan)}
+function gotoRecordTab(){const t=document.querySelector('.tab[data-tab="record"]');t&&t.click()}
+function showEvent(opt){clearAutoAdvance(),closeResultPopup(),eventTitle.textContent=opt.title,eventMsg.textContent=opt.msg,eventStars.classList.toggle("hidden",!opt.stars),eventStars.innerHTML="";if(opt.stars)for(let i=0;i<opt.stars;i++){const s=document.createElement("span");s.className="event-star",s.textContent="★",eventStars.appendChild(s)}eventBtn.textContent=opt.btn||"확인",eventAction=opt.action||closeEvent,eventOverlay.classList.remove("hidden")}
+function closeEvent(){eventOverlay.classList.add("hidden")}
+function updateScoreBar(){if("multiply"!==gameMode)return void scoreBar.classList.add("hidden");scoreBar.classList.remove("hidden"),scoreBarVal.textContent=getTodayPoints()}
+function updateGameLayout(){isRandomMode()?(danSelectArea.classList.add("hidden"),problemPicker.classList.add("hidden")):(danSelectArea.classList.remove("hidden"),problemPicker.classList.add("hidden")),updateScoreBar()}
+function updatePickBtn(){pickBtn.textContent="다른 문제 고르기",pickBtn.classList.toggle("hidden",isRandomMode()||"multiply"===gameMode)}
 function startRandomProblem(){closeHint(),clearAutoAdvance();const{d,n}=pickRandomPair();selectProblem(d,n)}
 function getProblem(d,n){if("multiply"===gameMode)return{key:d+"x"+n,text:d+" × "+n,answer:d*n,short:d+"×"+n};if("add"===gameMode)return{key:d+"+"+n,text:d+" + "+n,answer:d+n,short:d+"+"+n};if("divide"===gameMode){const p=d*n;return{key:p+"÷"+d,text:p+" ÷ "+d,answer:n,short:p+"÷"+d}}const m=10+d;return{key:m+"-"+n,text:m+" − "+n,answer:m-n,short:m+"−"+n}}
 function factKey(d,n){return getProblem(d,n).key}
@@ -575,21 +616,24 @@ function addTodayStat(cls){ensureTodayModeStats();const k=todayKey(),s=getTodayM
 function saveRewards(){rewardsByMode[gameMode]=customRewards.map(r=>({...r})),localStorage.setItem(userStorageKey(REWARD_KEY),JSON.stringify(rewardsByMode))}
 function getRewards(){return customRewards}
 function getRecord(d,n){const k=factKey(d,n);return records[k]||(records[k]={wrongCount:0,perfect:!1,month:null,day:null}),records[k]}
-function getStatus(d,n){const r=getRecord(d,n);return r.perfect?STATUS.perfect:r.wrongCount>=3?STATUS.retry:r.wrongCount>=1?STATUS.learning:STATUS.untouched}
+function getStatus(d,n){const r=getRecord(d,n);if(r.perfect)return r.wrongCount>=3?STATUS.retry:r.wrongCount>=1?STATUS.learning:STATUS.perfect;return r.wrongCount>=3?STATUS.retry:r.wrongCount>=1?STATUS.learning:STATUS.untouched}
 function getTodayPoints(){return ensureTodayDayPoints(),getTodayDayPoints()}
 function addDailyPoints(pts){ensureTodayDayPoints();const k=todayKey(),cur=getTodayDayPoints();dailyData[k][gameMode]=Math.min(cur+pts,MAX_DAILY),saveDaily()}
+function adjustDailyPoints(delta){ensureTodayDayPoints();const k=todayKey(),cur=getTodayDayPoints(),next=Math.max(0,Math.min(cur+delta,MAX_DAILY));dailyData[k][gameMode]=next,saveDaily();return{prev:cur,next:next}}
+function setDailyPoints(v){ensureTodayDayPoints();const k=todayKey();dailyData[k][gameMode]=Math.max(0,Math.min(v,MAX_DAILY)),saveDaily()}
+function resetDanProgress(d){const bm=getTodayBingoMap();for(let n=1;n<=9;n++){const k=factKey(d,n);delete records[k];delete bm[k]}saveRecords(),saveTodayBingo()}
 function touchRecord(d,n){const r=getRecord(d,n),{month,day}=getTodayParts();r.month=month,r.day=day}
 function markCorrect(d,n){const r=getRecord(d,n);r.perfect=!0,r.wrongCount=0,touchRecord(d,n),saveRecords(),addDailyPoints(STATUS.perfect.points),addTodayStat("perfect"),"multiply"===gameMode&&markTodayBingo(d,n,"perfect")}
 function markWrong(d,n){const r=getRecord(d,n);r.perfect=!1,r.wrongCount=Math.min(r.wrongCount+1,3),touchRecord(d,n);const st=getStatus(d,n);saveRecords(),addDailyPoints(st.points),addTodayStat(st.class),"multiply"===gameMode&&markTodayBingo(d,n,st.class)}
 function getStarCount(pts){return Math.min(5,Math.floor(pts/PTS_PER_STAR))}
 function getCurrentReward(pts){const s=getStarCount(pts);return 0===s?{name:"보상을 모으는 중...",desc:"20점마다 별 1개가 채워져요!"}:{name:getRewards()[s-1].name,desc:rewardDesc(s)}}
 function getTopStat(st){let top=null,max=0;STAT_ORDER.forEach(k=>{st[k]>max&&(max=st[k],top=k)});return max>0?{key:top,count:max,info:STATUS[top]}:null}
-function renderTodayStats(){const raw=getTodayStats(),st={total:raw.total,perfect:raw.perfect||0,learning:(raw.learning||0)+(raw.trying||0),retry:raw.retry||0},top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",retry:"빨강"};todayTopColorEl.className="stats-top",todayTopColorEl.textContent="가장 많이 푼 유형: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+" +"+info.points+'점</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
-function renderBingoBoard(){if("multiply"!==gameMode)return bingoPanel.classList.add("hidden"),void 0;bingoPanel.classList.remove("hidden");const todayMap=getTodayBingoMap();bingoBoardEl.innerHTML="";const corner=document.createElement("div");corner.className="bingo-head",bingoBoardEl.appendChild(corner);for(let n=1;n<=9;n++){const h=document.createElement("div");h.className="bingo-head col-head",h.textContent="×"+n,bingoBoardEl.appendChild(h)}DANS.forEach(d=>{const label=document.createElement("div");label.className="bingo-row-label"+(selectedDans.has(d)?" active":""),label.textContent=d+"단",bingoBoardEl.appendChild(label);for(let n=1;n<=9;n++){const p=getProblem(d,n),st=getStatus(d,n),attempted=isAttempted(d,n),todayCls=todayMap[p.key],cell=document.createElement("div");cell.className="bingo-cell"+(attempted?" "+st.class:" untouched")+(todayCls?" today":"");const title=attempted?st.label:"미도전";cell.title=p.short+" = "+p.answer+" ("+title+")",cell.innerHTML="<span>"+p.short+"</span>"+(attempted?'<span class="bingo-ans">='+p.answer+"</span>":""),bingoBoardEl.appendChild(cell)}})}
-function renderRewardPanel(){const m=MODES[gameMode],{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),rewardModeLabel.innerHTML='<span class="mon-sprite sm '+m.face+'" aria-hidden="true"></span>'+m.modeLabel+" 보상",todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),renderTodayStats(),renderBingoBoard()}
+function renderTodayStats(){const raw=getTodayStats(),st={total:raw.total,perfect:raw.perfect||0,learning:(raw.learning||0)+(raw.trying||0),retry:raw.retry||0},top=getTopStat(st);todayTotalEl.textContent=st.total,statsRowsEl.innerHTML="";if(0===st.total)return todayTopColorEl.className="stats-top empty",todayTopColorEl.textContent="아직 문제를 풀지 않았어요",void 0;if(top){const c={perfect:"초록",learning:"노랑",retry:"빨강"};todayTopColorEl.className="stats-top",todayTopColorEl.textContent="가장 많이 푼 유형: "+top.info.label+" ("+c[top.key]+") — "+top.count+"문제"}STAT_ORDER.forEach(k=>{const info=STATUS[k],cnt=st[k],pct=st.total?Math.round(cnt/st.total*100):0,isTop=top&&top.key===k,row=document.createElement("div");row.className="stat-row"+(isTop?" top-row":""),row.innerHTML='<span class="stat-label"><span class="stat-dot '+k+'"></span>'+info.label+'</span><div class="stat-bar-wrap"><div class="stat-bar '+k+'" style="width:'+pct+'%"></div></div><span class="stat-count"><em>'+cnt+'</em>개</span>',statsRowsEl.appendChild(row)})}
+function renderBingoBoard(){if("multiply"!==gameMode)return bingoPanel.classList.add("hidden"),void 0;bingoPanel.classList.remove("hidden");const todayMap=getTodayBingoMap();bingoBoardEl.innerHTML="";const corner=document.createElement("div");corner.className="bingo-head",bingoBoardEl.appendChild(corner);for(let n=1;n<=9;n++){const h=document.createElement("div");h.className="bingo-head col-head",h.textContent="×"+n,bingoBoardEl.appendChild(h)}DANS.forEach(d=>{const label=document.createElement("div");label.className="bingo-row-label"+(selectedDans.has(d)?" active":""),label.textContent=d+"단",bingoBoardEl.appendChild(label);for(let n=1;n<=9;n++){const p=getProblem(d,n),r=getRecord(d,n),st=getStatus(d,n),attempted=isAttempted(d,n),todayCls=todayMap[p.key],cell=document.createElement("div");cell.className="bingo-cell"+(attempted?" "+st.class:" untouched")+(r.perfect?" done":"")+(todayCls?" today":"");const title=attempted?st.label:"미도전";cell.title=p.short+" = "+p.answer+" ("+title+")",cell.innerHTML="<span>"+p.short+"</span>"+(attempted?'<span class="bingo-ans">='+p.answer+"</span>":""),bingoBoardEl.appendChild(cell)}})}
+function renderRewardPanel(){const m=MODES[gameMode],{month,day}=getTodayParts(),pts=getTodayPoints(),stars=getStarCount(pts),reward=getCurrentReward(pts),rw=getRewards();todayDateEl.textContent=formatDate(month,day),rewardModeLabel.innerHTML='<span class="mon-sprite sm '+m.face+'" aria-hidden="true"></span>'+m.modeLabel+" 보상",todayPointsEl.textContent=pts,starDisplay.innerHTML="";for(let i=1;i<=5;i++){const el=document.createElement("span");el.className="star"+(i<=stars?" filled":""),el.textContent="★",starDisplay.appendChild(el)}rewardNameEl.textContent=reward.name,rewardDescEl.textContent=reward.desc,rewardTiersEl.innerHTML="",rw.forEach(r=>{const el=document.createElement("div");el.className="tier-item"+(stars>=r.stars?" active":""),el.innerHTML='<span class="tier-stars">'+starStr(r.stars)+'</span><span>'+r.name+"</span>",rewardTiersEl.appendChild(el)}),renderTodayStats(),renderBingoBoard(),updateScoreBar()}
 function applyTheme(mode){document.body.classList.remove("mode-multiply","mode-add","mode-subtract","mode-divide"),document.body.classList.add("mode-"+mode)}
 function updateModeUI(){const m=MODES[gameMode];appLogo.textContent=m.logo,appMascot.className="mon-sprite lg "+m.face,appTitle.textContent=m.title,appSubtitle.textContent=m.subtitle,appFooterText.textContent=m.footer,applyTheme(gameMode)}
-function switchMode(mode){if(gameMode===mode)return;closeHint(),gameMode=mode,records=loadRecords(),syncCustomRewards(),selectedDans.clear(),currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden"),document.querySelectorAll(".mode-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode)),updateModeUI(),updatePickBtn(),updateGameLayout(),isRandomMode()?startRandomProblem():(initDanButtons(),updateProblemPicker()),renderRewardPanel()}
+function switchMode(mode){if(gameMode===mode)return;clearAutoAdvance(),closeResultPopup(),closeEvent(),closeHint(),gameMode=mode,records=loadRecords(),syncCustomRewards(),selectedDans.clear(),danQueue=[],currentDan=null,danRunActive=!1,currentProblem=null,answered=!1,gameArea.classList.add("hidden"),problemPicker.classList.add("hidden"),hintBtn.classList.add("hidden"),document.querySelectorAll(".mode-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode)),updateModeUI(),updatePickBtn(),updateGameLayout(),isRandomMode()?startRandomProblem():initDanButtons(),renderRewardPanel()}
 function getHintMeta(){if(!currentProblem)return null;if("add"===gameMode)return{type:"add",a:currentProblem.dan,b:currentProblem.num,answer:currentProblem.answer};if("subtract"===gameMode)return{type:"sub",total:10+currentProblem.dan,remove:currentProblem.num,answer:currentProblem.answer};return null}
 function pickDefaultTheme(meta){if(meta.a<=5&&meta.b<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.a+meta.b+meta.answer)%themes.length]}
 function pickDefaultThemeSub(meta){if(meta.total<=10&&meta.remove<=5)return"fingers";const themes=["fruit","animal","candy","cake"];return themes[(meta.total+meta.remove)%themes.length]}
@@ -604,14 +648,15 @@ function closeHint(){hintOverlay.classList.add("hidden"),document.body.style.ove
 function updateHintBtn(){const show=currentProblem&&("add"===gameMode||"subtract"===gameMode);hintBtn.classList.toggle("hidden",!show)}
 function dateLabel(r){return r.month&&r.day?formatDate(r.month,r.day):"-"}
 function initDanButtons(){danButtons.innerHTML="",DANS.forEach(d=>{const b=document.createElement("button");b.type="button",b.className="dan-btn",b.textContent=d+"단",b.dataset.dan=d,b.addEventListener("click",()=>selectDan(d)),danButtons.appendChild(b)})}
-function selectDan(d){selectedDans.clear(),selectedDans.add(d),updateDanButtons(),updateProblemPicker(),gameArea.classList.contains("hidden")||showProblemPicker(),renderBingoBoard()}
+function selectDan(d){if("multiply"===gameMode)return void startDanRun(d);selectedDans.clear(),selectedDans.add(d),updateDanButtons(),updateProblemPicker(),gameArea.classList.contains("hidden")||showProblemPicker(),renderBingoBoard()}
 function updateDanButtons(){danButtons.querySelectorAll(".dan-btn").forEach(b=>{const d=parseInt(b.dataset.dan,10);b.classList.toggle("selected",selectedDans.has(d))})}
 function updateProblemPicker(){selectedDans.size>0?(problemPicker.classList.remove("hidden"),renderProblemPicker()):problemPicker.classList.add("hidden")}
 function renderProblemPicker(){problemGrid.innerHTML="",[...selectedDans].sort((a,b)=>a-b).forEach(d=>{const sec=document.createElement("div");sec.className="picker-section";const title=document.createElement("h3");title.className="picker-dan-title",title.textContent=d+"단",sec.appendChild(title);const grid=document.createElement("div");grid.className="problem-grid";for(let n=1;n<=9;n++){const p=getProblem(d,n),r=getRecord(d,n),st=getStatus(d,n),btn=document.createElement("button");btn.type="button",btn.className="problem-btn "+st.class,btn.innerHTML='<span class="fact">'+p.text.replace(" − "," - ")+'</span><span class="status-label">'+st.label+'</span><span class="date-label">'+dateLabel(r)+"</span>",btn.addEventListener("click",()=>selectProblem(d,n)),grid.appendChild(btn)}sec.appendChild(grid),problemGrid.appendChild(sec)})}
 function selectProblem(d,n){clearAutoAdvance(),closeResultPopup();const p=getProblem(d,n);currentProblem={dan:d,num:n,answer:p.answer,text:p.text},answered=!1,isRandomMode()||problemPicker.classList.add("hidden"),gameArea.classList.remove("hidden"),questionEl.textContent=p.text+" = ?",answerInput.value="",answerInput.disabled=!1,retryBtn.classList.add("hidden"),updateHintBtn(),answerInput.focus()}
 function showProblemPicker(){if(clearAutoAdvance(),closeResultPopup(),isRandomMode())return void startRandomProblem();closeHint(),gameArea.classList.add("hidden"),currentProblem=null,hintBtn.classList.add("hidden"),renderProblemPicker(),problemPicker.classList.remove("hidden")}
 function resetCurrentProblem(){if(clearAutoAdvance(),closeResultPopup(),!currentProblem)return;answered=!1,answerInput.value="",answerInput.disabled=!1,retryBtn.classList.add("hidden"),answerInput.focus()}
-function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{d,n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return void showResultPopup(!1,"숫자를 입력해 주세요!");answered=!0,answerInput.disabled=!0,u===answer?(markCorrect(d,n),showResultPopup(!0,"정답!")):(markWrong(d,n),showResultPopup(!1,"다시 도전!")),renderRewardPanel(),scheduleAutoAdvance()}
+function handleAnswer(e){e.preventDefault();if(answered||!currentProblem)return;const{dan:d,num:n,answer}=currentProblem,u=parseInt(answerInput.value,10);if(isNaN(u))return void showResultPopup(!1,"숫자를 입력해 주세요!");answered=!0,answerInput.disabled=!0;if("multiply"===gameMode)return void handleMultiplyAnswer(d,n,u===answer);u===answer?(markCorrect(d,n),showResultPopup(!0,"정답!")):(markWrong(d,n),showResultPopup(!1,"다시 도전!")),renderRewardPanel(),scheduleAutoAdvance()}
+function handleMultiplyAnswer(d,n,correct){const r=getRecord(d,n);if(correct){const wc=r.wrongCount,cls=wc>=3?"retry":wc>=1?"learning":"perfect";r.perfect=!0,touchRecord(d,n),saveRecords(),addTodayStat(cls),markTodayBingo(d,n,cls),removeFromQueue(n);const{prev,next}=adjustDailyPoints(CORRECT_PTS);showResultPopup(!0,"정답!"),renderRewardPanel(),updateScoreBar();if(next>=WIN_SCORE&&prev<WIN_SCORE)return void setTimeout(showMissionComplete,AUTO_ADVANCE_MS-100);if(!danQueue.length)return void setTimeout(danComplete,AUTO_ADVANCE_MS-100);scheduleAutoAdvance()}else{r.perfect=!1,r.wrongCount=Math.min(r.wrongCount+1,9),touchRecord(d,n),saveRecords(),markTodayBingo(d,n,r.wrongCount>=3?"retry":"learning");const{prev,next}=adjustDailyPoints(-WRONG_PTS);showResultPopup(!1,"다시 도전!"),renderRewardPanel(),updateScoreBar();if(prev>0&&0===next)return void setTimeout(showGameOver,AUTO_ADVANCE_MS-100);scheduleAutoAdvance()}}
 function renderRewardEdit(){rewardEditList.innerHTML="",getRewards().forEach((r,i)=>{const row=document.createElement("div");row.className="reward-edit-row";const inp=document.createElement("input");inp.type="text",inp.maxLength=30,inp.placeholder="보상 이름 입력",inp.value=r.name,inp.dataset.index=i,inp.setAttribute("aria-label",r.stars+"개 별 보상");const pts=r.stars*PTS_PER_STAR;row.innerHTML='<span class="row-stars">'+starStr(r.stars)+'</span><span class="row-pts">'+pts+"점</span>",row.appendChild(inp),rewardEditList.appendChild(row)})}
 function saveRewardEdit(){const inputs=rewardEditList.querySelectorAll("input");inputs.forEach(inp=>{const i=parseInt(inp.dataset.index,10),v=inp.value.trim();customRewards[i].name=v||DEFAULT_REWARDS[i].name}),saveRewards(),rewardSaveMsg.textContent="보상이 저장됐어요! 🎉",renderRewardPanel(),setTimeout(()=>rewardSaveMsg.textContent="",2500)}
 function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),rewardsByMode[gameMode]=customRewards.map(r=>({...r})),saveRewards(),renderRewardEdit(),renderRewardPanel(),rewardSaveMsg.textContent="기본 보상으로 돌렸어요!",setTimeout(()=>rewardSaveMsg.textContent="",2500)}
@@ -621,7 +666,7 @@ const introScreen=document.getElementById("introScreen"),introStartBtn=document.
 let introTimer=null;const INTRO_CLIP_SEC=2;
 function finishIntro(){introTimer&&(clearTimeout(introTimer),introTimer=null),introScreen.classList.add("hidden")}
 function startIntroClip(){introScreen.classList.add("playing"),introStartBtn.classList.add("hidden"),introImg.src="assets/intro-clip.gif",introTimer=setTimeout(finishIntro,1e3*INTRO_CLIP_SEC)}
-introStartBtn.addEventListener("click",startIntroClip),document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
+introStartBtn.addEventListener("click",startIntroClip),eventBtn.addEventListener("click",()=>{const a=eventAction;eventAction=null,a?a():closeEvent()}),document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
   </script>
 </body>
 </html>
