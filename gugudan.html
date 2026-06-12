@@ -46,7 +46,8 @@ body{
   font-synthesis:none;-webkit-font-synthesis:none
 }
 body,body *{font-weight:400!important}
-body{background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),url("assets/game-bg.jpg") center top/cover no-repeat fixed!important}
+body{background:#d6eefa!important}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),url("assets/game-bg.jpg") center center/cover no-repeat}
 #gamePanel,#gamePanel *{-webkit-text-stroke-width:.4px;text-stroke-width:.4px}
 body.mode-subtract{
   --pika-yellow:#78c8b0;--pika-yellow-light:#c8e8dc;--pika-yellow-pale:#e4f4ec;
@@ -372,8 +373,17 @@ body.mode-divide .section-title::before{background-position:50% 0%}
   .answer-input-wrap input{font-size:18px;min-height:46px}
   .hero-title{font-size:1.5rem}
 }
-.intro-screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center;background-color:#d6eefa;overflow:hidden}
+.intro-screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),url("assets/game-bg.jpg") center center/cover no-repeat,#d6eefa;overflow:hidden}
 .intro-screen.hidden{display:none}
+.intro-pokeballs{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.intro-pokeballs .pokeball{position:absolute;opacity:.12}
+.intro-pokeballs .pb1{top:7%;left:6%;width:60px;height:60px;transform:rotate(-18deg)}
+.intro-pokeballs .pb2{top:14%;right:8%;width:44px;height:44px;transform:rotate(12deg)}
+.intro-pokeballs .pb3{top:46%;left:9%;width:38px;height:38px;transform:rotate(8deg)}
+.intro-pokeballs .pb4{top:40%;right:6%;width:52px;height:52px;transform:rotate(-10deg)}
+.intro-pokeballs .pb5{bottom:9%;left:12%;width:48px;height:48px;transform:rotate(16deg)}
+.intro-pokeballs .pb6{bottom:7%;right:14%;width:58px;height:58px;transform:rotate(-22deg)}
+.intro-stage{z-index:1}
 .intro-bg-img{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;object-fit:contain;border-radius:16px;pointer-events:none;user-select:none}
 .intro-title{position:relative;font-size:2.6rem;font-weight:800;color:var(--pika-brown);text-shadow:0 2px 0 var(--pika-white);animation:introBob 2.2s ease-in-out infinite}
 @keyframes introBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -391,6 +401,14 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 </head>
 <body class="mode-multiply">
   <div id="introScreen" class="intro-screen" role="dialog" aria-label="게임 시작 화면">
+    <div class="intro-pokeballs" aria-hidden="true">
+      <span class="pokeball pb1"></span>
+      <span class="pokeball pb2"></span>
+      <span class="pokeball pb3"></span>
+      <span class="pokeball pb4"></span>
+      <span class="pokeball pb5"></span>
+      <span class="pokeball pb6"></span>
+    </div>
     <div class="intro-stage" id="introStage">
       <img class="intro-bg-img" id="introImg" src="assets/pikachu.png" alt="" aria-hidden="true">
       <div class="intro-start-pos"><button type="button" class="intro-start-btn" id="introStartBtn">START</button></div>
@@ -686,9 +704,9 @@ function resetRewardEdit(){customRewards=DEFAULT_REWARDS.map(r=>({...r})),reward
 function initTabs(){const tabs=document.querySelectorAll(".tab"),panels={game:document.getElementById("gamePanel"),record:document.getElementById("recordPanel"),rewardEdit:document.getElementById("rewardEditPanel")};tabs.forEach(t=>{t.addEventListener("click",()=>{const g=t.dataset.tab;tabs.forEach(x=>{x.classList.toggle("active",x===t),x.setAttribute("aria-selected",x===t?"true":"false")}),Object.entries(panels).forEach(([k,p])=>{const a=k===g;p.classList.toggle("active",a),p.hidden=!a}),"record"===g&&renderRewardPanel(),"rewardEdit"===g&&renderRewardEdit()})})}
 function initModeTabs(){document.querySelectorAll(".mode-tab").forEach(t=>{t.addEventListener("click",()=>switchMode(t.dataset.mode))})}
 const introScreen=document.getElementById("introScreen"),introStartBtn=document.getElementById("introStartBtn"),introImg=document.getElementById("introImg");
-let introTimer=null;const INTRO_CLIP_SEC=2;
+let introTimer=null;const INTRO_CLIP_LOOP_MS=1260,INTRO_CLIP_LOOPS=2;
 function finishIntro(){introTimer&&(clearTimeout(introTimer),introTimer=null),introScreen.classList.add("hidden")}
-function startIntroClip(){introScreen.classList.add("playing"),introStartBtn.classList.add("hidden"),introImg.src="assets/intro-clip.gif",introTimer=setTimeout(finishIntro,1e3*INTRO_CLIP_SEC)}
+function startIntroClip(){introScreen.classList.add("playing"),introStartBtn.classList.add("hidden");const total=INTRO_CLIP_LOOP_MS*INTRO_CLIP_LOOPS;let started=!1;const begin=()=>{started||(started=!0,introTimer=setTimeout(finishIntro,total))};introImg.onload=()=>{introImg.onload=null,begin()},introImg.src="assets/intro-clip.gif",setTimeout(begin,300)}
 introStartBtn.addEventListener("click",startIntroClip),eventBtn.addEventListener("click",()=>{const a=eventAction;eventAction=null,a?a():closeEvent()}),document.getElementById("answerSpinUp").addEventListener("click",()=>{answerInput.disabled||answerInput.stepUp()}),document.getElementById("answerSpinDown").addEventListener("click",()=>{answerInput.disabled||answerInput.stepDown()}),answerForm.addEventListener("submit",handleAnswer),retryBtn.addEventListener("click",resetCurrentProblem),pickBtn.addEventListener("click",showProblemPicker),hintBtn.addEventListener("click",openHint),hintClose.addEventListener("click",closeHint),hintBack.addEventListener("click",closeHint),hintOverlay.addEventListener("click",e=>{e.target===hintOverlay&&closeHint()}),saveRewardsBtn.addEventListener("click",saveRewardEdit),resetRewardsBtn.addEventListener("click",resetRewardEdit),addUserBtn.addEventListener("click",addUser),newUserNameEl.addEventListener("keydown",e=>{"Enter"===e.key&&(e.preventDefault(),addUser())}),initUsers(),initModeTabs(),initDanButtons(),initTabs(),updateModeUI(),updatePickBtn(),updateGameLayout(),renderRewardEdit(),renderRewardPanel();
   </script>
 </body>
