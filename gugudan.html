@@ -344,13 +344,13 @@ body.mode-divide .section-title::before{background-position:50% 0%}
   .header-ball{width:24px;height:24px;top:10px}
   .header-ball.left{left:8px}.header-ball.right{right:8px}
   .pokeball-bg .pb1,.pokeball-bg .pb4{width:40px;height:40px}
-  .mode-tab{font-size:10px;padding:8px 2px;gap:2px}
+  .mode-tab{font-size:11px;padding:8px 2px;gap:2px}
   .face-icon{width:24px;height:24px}
   .mon-sprite.sm{width:22px;height:22px}
   .mon-sprite.lg{width:56px;height:56px}
   .section-title::before{width:20px;height:20px}
   .user-pill{padding:7px 12px;font-size:13px}
-  .user-add input{font-size:15px;padding:9px 10px;min-height:42px}
+  .user-add input{font-size:13px;padding:9px 10px;min-height:42px}
   .user-add-btn{padding:9px 12px;font-size:13px;min-height:42px}
   .tab{font-size:13px;padding:8px 6px;min-height:38px}
   .dan-btn{padding:10px 6px;font-size:13px;min-height:44px}
@@ -364,7 +364,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 }
 @media(max-width:360px){
   .question{font-size:2.1rem}
-  .mode-tab{font-size:9px;padding:7px 1px}
+  .mode-tab{font-size:10px;padding:7px 1px}
   .face-icon{width:20px;height:20px}
   .tab{font-size:12px;padding:7px 4px}
   .user-add{flex-wrap:wrap}.user-add-btn{flex:1}
@@ -396,7 +396,7 @@ body.mode-divide .section-title::before{background-position:50% 0%}
 @keyframes introPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .intro-screen.playing{justify-content:center}
 .intro-screen.playing .intro-bg-img{max-height:72vh;max-width:90vw;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:none;image-rendering:auto}
-@media(max-width:480px){.intro-title{font-size:2rem}.intro-start-btn{padding:8px 16px;font-size:.8rem;letter-spacing:1px;border-width:2px;border-radius:11px;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #1a1a1a}}
+@media(max-width:480px){.intro-title{font-size:2rem}.intro-start-btn{padding:8px 16px;font-size:calc(.8rem - 2px);letter-spacing:1px;border-width:2px;border-radius:11px;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #1a1a1a}.intro-screen:not(.playing) .intro-bg-img{max-width:calc(100vw - 38px)}}
   </style>
 </head>
 <body class="mode-multiply">
